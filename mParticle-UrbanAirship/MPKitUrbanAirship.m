@@ -116,7 +116,7 @@
 
 #pragma mark e-Commerce
 
- - (MPKitExecStatus *)logCommerceEvent:(MPCommerceEvent *)commerceEvent {
+- (MPKitExecStatus *)logCommerceEvent:(MPCommerceEvent *)commerceEvent {
      MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                                                  returnCode:MPKitReturnCodeSuccess forwardCount:0];
 
@@ -131,6 +131,17 @@
 
      return execStatus;
 }
+
+- (MPKitExecStatus *)logLTVIncrease:(double)increaseAmount event:(MPEvent *)event {
+    UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name
+                                                        value:[NSNumber numberWithDouble:increaseAmount]];
+
+    [[UAirship shared].analytics addEvent:customEvent];
+
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
+
 
 #pragma mark Events
 
