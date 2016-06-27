@@ -182,6 +182,8 @@ NSString* const UAConfigAppSecret = @"appSecret";
     UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
     [identifiers setValue:identityString forKey:airshipIdentity];
 
+    [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
+
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
 }
