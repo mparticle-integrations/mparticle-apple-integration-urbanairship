@@ -36,8 +36,18 @@
 #import <AirshipKit/AirshipLib.h>
 #import "UARetailEvent.h"
 
-#define kUrbanAirshipAppKey @"appKey"
-#define kUrbanAirshipAppSecret @"appSecret"
+
+NSString* const UAIdentityEmail = @"email";
+NSString* const UAIdentityFacebook = @"facebook_id";
+NSString* const UAIdentityTwitter = @"twitter_id";
+NSString* const UAIdentityGoogle = @"google_id";
+NSString* const UAIdentityMicrosoft = @"microsoft_id";
+NSString* const UAIdentityYahoo = @"yahoo_id";
+NSString* const UAIdentityFacebookCustomAudienceId = @"facebook_custom_audience_id";
+NSString* const UAIdentityCustomer = @"customer_id";
+
+NSString* const UAConfigAppKey = @"appKey";
+NSString* const UAConfigAppSecret = @"appSecret";
 
 @interface MPKitUrbanAirship()
 @property (nonatomic, assign) BOOL started;
@@ -81,12 +91,12 @@
         UAConfig *config = [UAConfig defaultConfig];
 
         if ([MParticle sharedInstance].environment == MPEnvironmentDevelopment) {
-            config.developmentAppKey = self.configuration[kUrbanAirshipAppKey];
-            config.developmentAppSecret = self.configuration[kUrbanAirshipAppSecret];
+            config.developmentAppKey = self.configuration[UAConfigAppKey];
+            config.developmentAppSecret = self.configuration[UAConfigAppSecret];
             config.inProduction = NO;
         } else {
-            config.productionAppKey = self.configuration[kUrbanAirshipAppKey];
-            config.productionAppSecret = self.configuration[kUrbanAirshipAppSecret];
+            config.productionAppKey = self.configuration[UAConfigAppKey];
+            config.productionAppSecret = self.configuration[UAConfigAppSecret];
             config.inProduction = NO;
         }
 
@@ -159,6 +169,23 @@
                                           returnCode:MPKitReturnCodeSuccess];
  }
 
+#pragma mark User attributes and identities
+
+- (MPKitExecStatus *)setUserIdentity:(NSString *)identityString identityType:(MPUserIdentity)identityType {
+    NSString *airshipIdentity = [self mapIdentityType:identityType];
+
+    if (!airshipIdentity) {
+        return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                             returnCode:MPKitReturnCodeUnavailable];
+    }
+
+    UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
+    [identifiers setValue:identityString forKey:airshipIdentity];
+
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
+
 #pragma mark Assorted
 
  - (MPKitExecStatus *)setOptOut:(BOOL)optOut {
@@ -169,6 +196,34 @@
  }
 
 #pragma mark Helpers
+
+- (NSString *)mapIdentityType:(MPUserIdentity)identityType {
+    switch (identityType) {
+        case MPUserIdentityCustomerId:
+            return UAIdentityCustomer;
+
+        case MPUserIdentityFacebook:
+            return UAIdentityFacebook;
+
+        case MPUserIdentityTwitter:
+            return UAIdentityTwitter;
+
+        case MPUserIdentityGoogle:
+            return UAIdentityGoogle;
+
+        case MPUserIdentityYahoo:
+            return UAIdentityYahoo;
+
+        case MPUserIdentityEmail:
+            return UAIdentityEmail;
+
+        case MPUserIdentityFacebookCustomAudienceId:
+            return UAIdentityFacebookCustomAudienceId;
+    }
+
+    return NULL;
+}
+
 
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
     UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name];
