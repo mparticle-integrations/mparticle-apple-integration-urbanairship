@@ -256,6 +256,16 @@ NSString* const UAConfigAppSecret = @"appSecret";
 
             return YES;
 
+        case MPCommerceEventActionAddToCart:
+
+            for (id product in commerceEvent.products) {
+                UARetailEvent *retailEvent = [UARetailEvent addedToCartEvent];
+                [self populateRetailEvent:retailEvent commerceEvent:commerceEvent product:product];
+                [retailEvent track];
+            }
+
+            return YES;
+
         case MPCommerceEventActionClick:
 
             for (id product in commerceEvent.products) {
