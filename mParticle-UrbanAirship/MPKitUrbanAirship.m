@@ -227,7 +227,7 @@ NSString* const UAConfigAppSecret = @"appSecret";
             return UAIdentityFacebookCustomAudienceId;
     }
 
-    return NULL;
+    return nil;
 }
 
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
