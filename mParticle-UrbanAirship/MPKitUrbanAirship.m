@@ -213,6 +213,9 @@ NSString* const UAConfigAppSecret = @"appSecret";
         case MPUserIdentityGoogle:
             return UAIdentityGoogle;
 
+        case MPUserIdentityMicrosoft:
+            return UAIdentityMicrosoft;
+
         case MPUserIdentityYahoo:
             return UAIdentityYahoo;
 
