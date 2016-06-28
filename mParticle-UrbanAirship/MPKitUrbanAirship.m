@@ -254,7 +254,7 @@ NSString* const UAConfigAppSecret = @"appSecret";
                 [retailEvent track];
             }
 
-            return true;
+            return YES;
 
         case MPCommerceEventActionClick:
 
@@ -264,7 +264,7 @@ NSString* const UAConfigAppSecret = @"appSecret";
                 [retailEvent track];
             }
 
-            return true;
+            return YES;
 
         case MPCommerceEventActionAddToWishList:
 
@@ -274,10 +274,10 @@ NSString* const UAConfigAppSecret = @"appSecret";
                 [retailEvent track];
             }
 
-            return true;
+            return YES;
     }
 
-    return false;
+    return NO;
 
 }
 
