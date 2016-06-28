@@ -97,7 +97,7 @@ NSString* const UAConfigAppSecret = @"appSecret";
         } else {
             config.productionAppKey = self.configuration[UAConfigAppKey];
             config.productionAppSecret = self.configuration[UAConfigAppSecret];
-            config.inProduction = NO;
+            config.inProduction = YES;
         }
 
         dispatch_async(dispatch_get_main_queue(), ^{
