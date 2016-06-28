@@ -69,6 +69,7 @@ NSString* const UAConfigAppSecret = @"appSecret";
 #pragma mark - MPKitInstanceProtocol methods
 
 #pragma mark Kit instance and lifecycle
+
 - (nonnull instancetype)initWithConfiguration:(nonnull NSDictionary *)configuration startImmediately:(BOOL)startImmediately {
     self = [super init];
 
@@ -127,19 +128,19 @@ NSString* const UAConfigAppSecret = @"appSecret";
 #pragma mark e-Commerce
 
 - (MPKitExecStatus *)logCommerceEvent:(MPCommerceEvent *)commerceEvent {
-     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                                                 returnCode:MPKitReturnCodeSuccess forwardCount:0];
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                                                returnCode:MPKitReturnCodeSuccess forwardCount:0];
 
-     if ([self logAirshipRetailEventFromCommerceEvent:commerceEvent]) {
-         [execStatus incrementForwardCount];
-     } else {
-         for (MPCommerceEventInstruction *commerceEventInstruction in [commerceEvent expandedInstructions]) {
-             [self logUrbanAirshipEvent:commerceEventInstruction.event];
-             [execStatus incrementForwardCount];
-         }
-     }
+    if ([self logAirshipRetailEventFromCommerceEvent:commerceEvent]) {
+        [execStatus incrementForwardCount];
+    } else {
+        for (MPCommerceEventInstruction *commerceEventInstruction in [commerceEvent expandedInstructions]) {
+            [self logUrbanAirshipEvent:commerceEventInstruction.event];
+            [execStatus incrementForwardCount];
+        }
+    }
 
-     return execStatus;
+    return execStatus;
 }
 
 - (MPKitExecStatus *)logLTVIncrease:(double)increaseAmount event:(MPEvent *)event {
@@ -155,19 +156,19 @@ NSString* const UAConfigAppSecret = @"appSecret";
 
 #pragma mark Events
 
- - (MPKitExecStatus *)logEvent:(MPEvent *)event {
-     [self logUrbanAirshipEvent:event];
+- (MPKitExecStatus *)logEvent:(MPEvent *)event {
+    [self logUrbanAirshipEvent:event];
 
-     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                          returnCode:MPKitReturnCodeSuccess];
- }
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
 
- - (MPKitExecStatus *)logScreen:(MPEvent *)event {
-     [[UAirship shared].analytics trackScreen:event.name];
+- (MPKitExecStatus *)logScreen:(MPEvent *)event {
+    [[UAirship shared].analytics trackScreen:event.name];
 
-     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                          returnCode:MPKitReturnCodeSuccess];
- }
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
 
 #pragma mark User attributes and identities
 
@@ -190,12 +191,12 @@ NSString* const UAConfigAppSecret = @"appSecret";
 
 #pragma mark Assorted
 
- - (MPKitExecStatus *)setOptOut:(BOOL)optOut {
-     [UAirship shared].analytics.enabled = optOut;
+- (MPKitExecStatus *)setOptOut:(BOOL)optOut {
+    [UAirship shared].analytics.enabled = optOut;
 
-     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                          returnCode:MPKitReturnCodeSuccess];
- }
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
 
 #pragma mark Helpers
 
@@ -229,7 +230,6 @@ NSString* const UAConfigAppSecret = @"appSecret";
     return NULL;
 }
 
-
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
     UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name];
 
@@ -239,7 +239,6 @@ NSString* const UAConfigAppSecret = @"appSecret";
 
     [[UAirship shared].analytics addEvent:customEvent];
 }
-
 
 - (BOOL)logAirshipRetailEventFromCommerceEvent:(MPCommerceEvent *)commerceEvent {
     if (commerceEvent.products < 0) {
