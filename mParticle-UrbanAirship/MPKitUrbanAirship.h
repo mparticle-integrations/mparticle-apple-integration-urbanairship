@@ -21,5 +21,8 @@
 
 @interface MPKitUrbanAirship : NSObject <MPKitProtocol>
 
+@property (nonatomic, strong, nonnull) NSDictionary *configuration;
+@property (nonatomic, strong, nullable) NSDictionary *launchOptions;
+@property (nonatomic, unsafe_unretained, readonly) BOOL started;
 
 @end

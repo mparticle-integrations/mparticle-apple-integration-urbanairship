@@ -475,7 +475,7 @@
 				GCC_PREFIX_HEADER = "mParticle-UrbanAirship/mParticle-UrbanAirship-Prefix.pch";
 				INFOPLIST_FILE = "mParticle-UrbanAirship/mParticle-UrbanAirship-Info.plist";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.urbanairship.richpush;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -491,7 +491,7 @@
 				GCC_PREFIX_HEADER = "mParticle-UrbanAirship/mParticle-UrbanAirship-Prefix.pch";
 				INFOPLIST_FILE = "mParticle-UrbanAirship/mParticle-UrbanAirship-Info.plist";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_BUNDLE_IDENTIFIER = com.urbanairship.richpush;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

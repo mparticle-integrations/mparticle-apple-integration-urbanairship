@@ -49,10 +49,6 @@ NSString* const UAIdentityCustomer = @"customer_id";
 NSString* const UAConfigAppKey = @"appKey";
 NSString* const UAConfigAppSecret = @"appSecret";
 
-@interface MPKitUrbanAirship()
-@property (nonatomic, assign) BOOL started;
-@end
-
 @implementation MPKitUrbanAirship
 
 + (NSNumber *)kitCode {
@@ -87,9 +83,10 @@ NSString* const UAConfigAppSecret = @"appSecret";
     static dispatch_once_t kitPredicate;
 
     dispatch_once(&kitPredicate, ^{
-        self.started = YES;
+        _started = YES;
 
         UAConfig *config = [UAConfig defaultConfig];
+        config.automaticSetupEnabled = NO;
 
         if ([MParticle sharedInstance].environment == MPEnvironmentDevelopment) {
             config.developmentAppKey = self.configuration[UAConfigAppKey];
@@ -288,7 +285,6 @@ NSString* const UAConfigAppSecret = @"appSecret";
     }
 
     return NO;
-
 }
 
 - (void)populateRetailEvent:(UARetailEvent *)event
@@ -300,6 +296,55 @@ NSString* const UAConfigAppSecret = @"appSecret";
     event.eventDescription = product.name;
     event.brand = product.brand;
     event.eventValue = commerceEvent.transactionAttributes.revenue;
+}
+
+- (MPKitExecStatus *)receivedUserNotification:(NSDictionary *)userInfo {
+    [[UAirship push] appReceivedRemoteNotification:userInfo
+                                  applicationState:[UIApplication sharedApplication].applicationState];
+
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
+
+- (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo {
+    [[UAirship push] appReceivedActionWithIdentifier:identifier
+                                        notification:userInfo
+                                    applicationState:[UIApplication sharedApplication].applicationState
+                                   completionHandler:^{}];
+
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
+
+// Not available yet
+- (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier
+                          forRemoteNotification:(NSDictionary *)userInfo
+                               withResponseInfo:(NSDictionary *)responseInfo
+                              completionHandler:(void (^)())completionHandler {
+
+    [[UAirship push] appReceivedActionWithIdentifier:identifier
+                                        notification:userInfo
+                                        responseInfo:responseInfo
+                                    applicationState:[UIApplication sharedApplication].applicationState
+                                   completionHandler:completionHandler];
+
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
+
+- (MPKitExecStatus *)setDeviceToken:(NSData *)deviceToken {
+    [[UAirship push] appRegisteredForRemoteNotificationsWithDeviceToken:deviceToken];
+
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
+}
+
+// Not available yet
+- (MPKitExecStatus *)didRegisterUserNotificationSettings:(UIUserNotificationSettings *)settings {
+    [[UAirship push] appRegisteredUserNotificationSettings];
+
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
+                                         returnCode:MPKitReturnCodeSuccess];
 }
 
 @end
