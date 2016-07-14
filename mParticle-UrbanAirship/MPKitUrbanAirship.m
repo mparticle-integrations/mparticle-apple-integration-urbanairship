@@ -55,6 +55,14 @@ NSString* const UAConfigAppSecret = @"appSecret";
     return @104;
 }
 
++ (void)enableUserNotifications {
+    if ([UAirship push]) {
+        [UAirship push].userPushNotificationsEnabled = YES;
+    } else {
+        enableNotifications_ = YES;
+    }
+}
+
 + (void)load {
     MPKitRegister *kitRegister = [[MPKitRegister alloc] initWithName:@"Urban Airship"
                                                            className:@"MPKitUrbanAirship"
@@ -101,6 +109,10 @@ NSString* const UAConfigAppSecret = @"appSecret";
         dispatch_async(dispatch_get_main_queue(), ^{
 
             [UAirship takeOff:config];
+
+            if (enableNotifications_) {
+                [UAirship push].userPushNotificationsEnabled = YES;
+            }
 
             NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
 
