@@ -311,8 +311,11 @@ NSString* const UAConfigAppSecret = @"appSecret";
 }
 
 - (MPKitExecStatus *)receivedUserNotification:(NSDictionary *)userInfo {
-    [[UAirship push] appReceivedRemoteNotification:userInfo
-                                  applicationState:[UIApplication sharedApplication].applicationState];
+    // Check for UA identifiers
+    if ([userInfo objectForKey:@"_"] || [userInfo objectForKey:@"com.urbanairship.metadata"]) {
+        [[UAirship push] appReceivedRemoteNotification:userInfo
+                                      applicationState:[UIApplication sharedApplication].applicationState];
+    }
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
