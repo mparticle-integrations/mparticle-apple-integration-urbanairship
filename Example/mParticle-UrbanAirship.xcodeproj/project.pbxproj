@@ -168,12 +168,15 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "mParticle-UrbanAirship_Example" */;
 			buildPhases = (
+				B5A99EED5011A35D8A1E3E30 /* 📦 Check Pods Manifest.lock */,
 				CAD100F95C8D576BB8468015 /* [CP] Check Pods Manifest.lock */,
 				6003F586195388D20070C39A /* Sources */,
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
 				8CD012351A757E6822178622 /* [CP] Embed Pods Frameworks */,
 				16A5829EE57203A8728DECF6 /* [CP] Copy Pods Resources */,
+				B4AFCB25D0032565BE8257E0 /* 📦 Embed Pods Frameworks */,
+				C64AC85E2F27EE18458B8AD5 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -188,12 +191,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "mParticle-UrbanAirship_Tests" */;
 			buildPhases = (
-				FC41F2E10FD6BE5CA08AEC49 /* [CP] Check Pods Manifest.lock */,
 				6003F5AA195388D20070C39A /* Sources */,
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
-				68DA8AB1BE7676E6C873D769 /* [CP] Embed Pods Frameworks */,
-				0AF6C13DEA0C67FA06F6FA86 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -213,9 +213,11 @@
 			attributes = {
 				CLASSPREFIX = MP;
 				LastUpgradeCheck = 0720;
-				ORGANIZATIONNAME = "Ryan Lepinski";
+				ORGANIZATIONNAME = "Urban Airship";
 				TargetAttributes = {
 					6003F589195388D20070C39A = {
+						DevelopmentTeam = PGJV57GD94;
+						DevelopmentTeamName = "Urban Airship Inc.";
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -267,21 +269,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0AF6C13DEA0C67FA06F6FA86 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-mParticle-UrbanAirship_Tests/Pods-mParticle-UrbanAirship_Tests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		16A5829EE57203A8728DECF6 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -295,21 +282,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		68DA8AB1BE7676E6C873D769 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-mParticle-UrbanAirship_Tests/Pods-mParticle-UrbanAirship_Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		8CD012351A757E6822178622 /* [CP] Embed Pods Frameworks */ = {
@@ -327,14 +299,29 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		CAD100F95C8D576BB8468015 /* [CP] Check Pods Manifest.lock */ = {
+		B4AFCB25D0032565BE8257E0 /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "[CP] Check Pods Manifest.lock";
+			name = "📦 Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B5A99EED5011A35D8A1E3E30 /* 📦 Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -342,7 +329,22 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		FC41F2E10FD6BE5CA08AEC49 /* [CP] Check Pods Manifest.lock */ = {
+		C64AC85E2F27EE18458B8AD5 /* 📦 Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "📦 Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CAD100F95C8D576BB8468015 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
