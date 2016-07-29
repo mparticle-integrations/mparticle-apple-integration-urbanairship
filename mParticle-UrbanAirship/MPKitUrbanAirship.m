@@ -36,6 +36,7 @@
 #import <AirshipKit/AirshipLib.h>
 #import "UARetailEvent.h"
 
+static BOOL enableNotifications_;
 
 NSString* const UAIdentityEmail = @"email";
 NSString* const UAIdentityFacebook = @"facebook_id";
@@ -106,21 +107,21 @@ NSString* const UAConfigAppSecret = @"appSecret";
             config.inProduction = YES;
         }
 
-        dispatch_async(dispatch_get_main_queue(), ^{
+        [UAirship takeOff:config];
 
-            [UAirship takeOff:config];
+        if (enableNotifications_) {
+            [UAirship push].userPushNotificationsEnabled = YES;
+        }
 
-            if (enableNotifications_) {
-                [UAirship push].userPushNotificationsEnabled = YES;
-            }
+        [[UAirship push] updateRegistration];
 
-            NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
+        NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
 
-            [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
-                                                                object:nil
-                                                              userInfo:userInfo];
-        });
+        [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
+                                                            object:nil
+                                                          userInfo:userInfo];
     });
+
 }
 
 - (id const)providerKitInstance {
@@ -331,7 +332,6 @@ NSString* const UAConfigAppSecret = @"appSecret";
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
-// Not available yet
 - (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier
                           forRemoteNotification:(NSDictionary *)userInfo
                                withResponseInfo:(NSDictionary *)responseInfo
@@ -354,7 +354,6 @@ NSString* const UAConfigAppSecret = @"appSecret";
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
-// Not available yet
 - (MPKitExecStatus *)didRegisterUserNotificationSettings:(UIUserNotificationSettings *)settings {
     [[UAirship push] appRegisteredUserNotificationSettings];
 
