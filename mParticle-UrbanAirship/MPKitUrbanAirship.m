@@ -50,6 +50,8 @@ NSString* const UAIdentityCustomer = @"customer_id";
 NSString* const UAConfigAppKey = @"appKey";
 NSString* const UAConfigAppSecret = @"appSecret";
 
+NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
+
 @implementation MPKitUrbanAirship
 
 + (NSNumber *)kitCode {
@@ -120,8 +122,18 @@ NSString* const UAConfigAppSecret = @"appSecret";
         [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
                                                             object:nil
                                                           userInfo:userInfo];
-    });
 
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(updateChannelIntegration)
+                                                     name:@"com.urbanairship.push.channel_created"
+                                                   object:nil];
+
+        [self updateChannelIntegration];
+    });
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (id const)providerKitInstance {
@@ -310,6 +322,16 @@ NSString* const UAConfigAppSecret = @"appSecret";
     event.brand = product.brand;
     event.eventValue = commerceEvent.transactionAttributes.revenue;
 }
+
+- (void)updateChannelIntegration  {
+    NSString *channelID = [UAirship push].channelID;
+    if (channelID.length) {
+//        [[MParticle sharedInstance] setIntegrationAttribute:UAChannelIdIntegrationKey
+//                                                      value:channelID];
+    }
+}
+
+#pragma mark App Delegate Integration
 
 - (MPKitExecStatus *)receivedUserNotification:(NSDictionary *)userInfo {
     // Check for UA identifiers
