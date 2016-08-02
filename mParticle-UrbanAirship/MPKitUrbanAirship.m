@@ -125,7 +125,7 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(updateChannelIntegration)
-                                                     name:@"com.urbanairship.push.channel_created"
+                                                     name:UAChannelCreatedEvent
                                                    object:nil];
 
         [self updateChannelIntegration];
