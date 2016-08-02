@@ -1,17 +1,39 @@
 //
-//  MPAppDelegate.m
-//  mParticle-UrbanAirship
+//  MPKitUrbanAirship.h
 //
-//  Created by Ryan Lepinski on 06/24/2016.
-//  Copyright (c) 2016 Ryan Lepinski. All rights reserved.
+//  Copyright 2016 mParticle, Inc.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #import "MPAppDelegate.h"
+#import "mParticle.h"
+#import "MPKitUrbanAirship.h"
 
 @implementation MPAppDelegate
 
+// mParticle credentials
+NSString* const appKey = @"app_key";
+NSString* const appSecret = @"app_secret";
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [[MParticle sharedInstance] startWithKey:appKey
+                                      secret:appSecret];
+
+
+    [MPKitUrbanAirship enableUserNotifications];
+
     // Override point for customization after application launch.
     return YES;
 }
