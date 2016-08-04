@@ -17,7 +17,6 @@
 //
 
 #import "MPKitUrbanAirship.h"
-
 #import "MPEvent.h"
 #import "MPProduct.h"
 #import "MPProduct+Dictionary.h"
@@ -32,8 +31,7 @@
 #import "NSDictionary+MPCaseInsensitive.h"
 #import "MPDateFormatter.h"
 #import "MPEnums.h"
-
-#import <AirshipKit/AirshipLib.h>
+#import "AirshipLib.h"
 #import "UARetailEvent.h"
 
 static BOOL enableNotifications_;
@@ -47,15 +45,70 @@ NSString* const UAIdentityYahoo = @"yahoo_id";
 NSString* const UAIdentityFacebookCustomAudienceId = @"facebook_custom_audience_id";
 NSString* const UAIdentityCustomer = @"customer_id";
 
-NSString* const UAConfigAppKey = @"appKey";
-NSString* const UAConfigAppSecret = @"appSecret";
+NSString* const UAConfigAppKey = @"applicationKey";
+NSString* const UAConfigAppSecret = @"applicationSecret";
+NSString *const UAConfigEnableTags = @"enableTags";
+NSString *const UAConfigIncludeUserAttributes = @"includeUserAttributes";
 
 NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
+
+NSString * const kMPUAEventTagKey = @"eventUserTags";
+NSString * const kMPUAEventAttributeTagKey = @"eventAttributeUserTags";
+NSString * const kMPUAMapTypeEventClass = @"EventClass.Id";
+NSString * const kMPUAMapTypeEventClassDetails = @"EventClassDetails.Id";
+NSString * const kMPUAMapTypeEventAttributeClass = @"EventAttributeClass.Id";
+NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassDetails.Id";
+
+
+#pragma mark - MPUATagMapping
+@interface MPUATagMapping : NSObject
+
+@property (nonatomic, strong, readonly) NSString *mapType;
+@property (nonatomic, strong, readonly) NSString *value;
+@property (nonatomic, strong, readonly) NSString *mapHash;
+
+- (instancetype)initWithConfiguration:(NSDictionary<NSString *, NSString *> *)configuration;
+
+@end
+
+@implementation MPUATagMapping
+
+- (instancetype)initWithConfiguration:(NSDictionary<NSString *, NSString *> *)configuration {
+    self = [super init];
+    if (self) {
+        _mapType = configuration[@"maptype"];
+        _value = configuration[@"value"];
+        _mapHash = configuration[@"map"];
+    }
+    
+    if (!_mapType || (NSNull *)_mapType == [NSNull null] ||
+        !_value || (NSNull *)_value == [NSNull null] ||
+        !_mapHash || (NSNull *)_mapHash == [NSNull null])
+    {
+        return nil;
+    } else {
+        return self;
+    }
+}
+
+@end
+
+
+#pragma mark - MPKitUrbanAirship
+@interface MPKitUrbanAirship()
+
+@property (nonatomic, strong) NSMutableArray<MPUATagMapping *> *eventTagsMapping;
+@property (nonatomic, strong) NSMutableArray<MPUATagMapping *> *eventAttributeTagsMapping;
+@property (nonatomic, unsafe_unretained) BOOL enableTags;
+@property (nonatomic, unsafe_unretained) BOOL includeUserAttributes;
+
+@end
+
 
 @implementation MPKitUrbanAirship
 
 + (NSNumber *)kitCode {
-    return @104;
+    return @25;
 }
 
 + (void)enableUserNotifications {
@@ -82,6 +135,13 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 
     if (self) {
         self.configuration = configuration;
+        
+        NSString *auxString = configuration[UAConfigEnableTags];
+        _enableTags = auxString ? [auxString boolValue] : NO;
+        
+        auxString = configuration[UAConfigIncludeUserAttributes];
+        _includeUserAttributes = auxString ? [auxString boolValue] : NO;
+        
         if (startImmediately) {
             [self start];
         }
@@ -119,14 +179,15 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 
         NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
 
-        [[NSNotificationCenter defaultCenter] postNotificationName:mParticleKitDidBecomeActiveNotification
-                                                            object:nil
-                                                          userInfo:userInfo];
+        NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+        [notificationCenter postNotificationName:mParticleKitDidBecomeActiveNotification
+                                          object:nil
+                                        userInfo:userInfo];
 
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(updateChannelIntegration)
-                                                     name:UAChannelCreatedEvent
-                                                   object:nil];
+        [notificationCenter addObserver:self
+                               selector:@selector(updateChannelIntegration)
+                                   name:UAChannelCreatedEvent
+                                 object:nil];
 
         [self updateChannelIntegration];
     });
@@ -137,15 +198,59 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 }
 
 - (id const)providerKitInstance {
-    if (![self started]) {
-        return nil;
-    }
-
-    // Some of the more useful classes are not accessible through the UAirship instance,
-    // such as push ([UAirship push]). Should we return nil?
-    return [UAirship shared];
+    return [self started] ? [UAirship shared] : nil;
 }
 
+- (void)setConfiguration:(NSDictionary *)configuration {
+    _configuration = configuration;
+    
+    // Configure event tags mapping
+    
+    NSString *tagMappingStr = [configuration[kMPUAEventTagKey] stringByRemovingPercentEncoding];
+    NSData *tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error = nil;
+    NSArray<NSDictionary<NSString *, NSString *> *> *tagMappingConfig = nil;
+    
+    @try {
+        tagMappingConfig = [NSJSONSerialization JSONObjectWithData:tagMappingData options:kNilOptions error:&error];
+    } @catch (NSException *exception) {
+    }
+    
+    if (tagMappingConfig && !error) {
+        [self configureEventTagsMapping:tagMappingConfig];
+    }
+
+    // Configure event attribute tags mapping
+    tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
+    tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    error = nil;
+    tagMappingConfig = nil;
+    
+    @try {
+        tagMappingConfig = [NSJSONSerialization JSONObjectWithData:tagMappingData options:kNilOptions error:&error];
+    } @catch (NSException *exception) {
+    }
+    
+    if (tagMappingConfig && !error) {
+        [self configureEventAttributeTagsMapping:tagMappingConfig];
+    }
+}
+
+- (NSMutableArray<MPUATagMapping *> *)eventTagsMapping {
+    if (!_eventTagsMapping) {
+        _eventTagsMapping = [[NSMutableArray alloc] initWithCapacity:1];
+    }
+    
+    return _eventTagsMapping;
+}
+
+- (NSMutableArray<MPUATagMapping *> *)eventAttributeTagsMapping {
+    if (!_eventAttributeTagsMapping) {
+        _eventAttributeTagsMapping = [[NSMutableArray alloc] initWithCapacity:1];
+    }
+    
+    return _eventAttributeTagsMapping;
+}
 
 #pragma mark e-Commerce
 
@@ -153,11 +258,25 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                                                 returnCode:MPKitReturnCodeSuccess forwardCount:0];
 
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapType == %@", kMPUAMapTypeEventClassDetails];
+    NSArray<MPUATagMapping *> *eventTagMappings = [self.eventTagsMapping filteredArrayUsingPredicate:predicate];
+    
+    predicate = [NSPredicate predicateWithFormat:@"mapType == %@", kMPUAMapTypeEventAttributeClassDetails];
+    NSArray<MPUATagMapping *> *eventAttributeTagMappings = [self.eventAttributeTagsMapping filteredArrayUsingPredicate:predicate];
+
     if ([self logAirshipRetailEventFromCommerceEvent:commerceEvent]) {
+        [self setTagMappings:eventTagMappings forCommerceEvent:commerceEvent];
+        [self setTagMappings:eventAttributeTagMappings forAttributesInCommerceEvent:commerceEvent];
+        
         [execStatus incrementForwardCount];
     } else {
         for (MPCommerceEventInstruction *commerceEventInstruction in [commerceEvent expandedInstructions]) {
             [self logUrbanAirshipEvent:commerceEventInstruction.event];
+            
+            NSNumber *eventType = @(commerceEventInstruction.event.type);
+            [self setTagMappings:eventTagMappings forEvent:commerceEventInstruction.event eventType:eventType];
+            [self setTagMappings:eventAttributeTagMappings forAttributesInEvent:commerceEventInstruction.event eventType:eventType];
+
             [execStatus incrementForwardCount];
         }
     }
@@ -181,6 +300,17 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 - (MPKitExecStatus *)logEvent:(MPEvent *)event {
     [self logUrbanAirshipEvent:event];
 
+    // Event class tags
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapType == %@", kMPUAMapTypeEventClass];
+    NSArray<MPUATagMapping *> *tagMappings = [self.eventTagsMapping filteredArrayUsingPredicate:predicate];
+    NSNumber *eventType = @(event.type);
+    [self setTagMappings:tagMappings forEvent:event eventType:eventType];
+    
+    // Event attribute class tags
+    predicate = [NSPredicate predicateWithFormat:@"mapType == %@", kMPUAMapTypeEventAttributeClass];
+    tagMappings = [self.eventAttributeTagsMapping filteredArrayUsingPredicate:predicate];
+    [self setTagMappings:tagMappings forAttributesInEvent:event eventType:eventType];
+    
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
 }
@@ -188,11 +318,48 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 - (MPKitExecStatus *)logScreen:(MPEvent *)event {
     [[UAirship shared].analytics trackScreen:event.name];
 
+    // Event class detail tags
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapType == %@", kMPUAMapTypeEventClassDetails];
+    NSArray<MPUATagMapping *> *tagMappings = [self.eventTagsMapping filteredArrayUsingPredicate:predicate];
+    NSNumber *eventType = @0; // logScreen does not have a corresponding event type
+    [self setTagMappings:tagMappings forEvent:event eventType:eventType];
+    
+    // Event attribute class detail tags
+    predicate = [NSPredicate predicateWithFormat:@"mapType == %@", kMPUAMapTypeEventAttributeClassDetails];
+    tagMappings = [self.eventAttributeTagsMapping filteredArrayUsingPredicate:predicate];
+    [self setTagMappings:tagMappings forAttributesInEvent:event eventType:eventType];
+
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
 #pragma mark User attributes and identities
+- (MPKitExecStatus *)setUserAttribute:(NSString *)key value:(NSString *)value {
+    MPKitReturnCode returnCode;
+    
+    if (_enableTags) {
+        NSString *uaTag = nil;
+        
+        if (!value || (NSNull *)value == [NSNull null] || [value isEqualToString:@""]) {
+            uaTag = key;
+        } else if (_includeUserAttributes) {
+            uaTag = [NSString stringWithFormat:@"%@-%@", key, value];
+        }
+        
+        if (uaTag) {
+            [[UAirship push] addTag:uaTag];
+            [[UAirship push] updateRegistration];
+            
+            returnCode = MPKitReturnCodeSuccess;
+        } else {
+            returnCode = MPKitReturnCodeRequirementsNotMet;
+        }
+    } else {
+        returnCode = MPKitReturnCodeCannotExecute;
+    }
+    
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:returnCode];
+}
 
 - (MPKitExecStatus *)setUserIdentity:(NSString *)identityString identityType:(MPUserIdentity)identityType {
     NSString *airshipIdentity = [self mapIdentityType:identityType];
@@ -214,7 +381,7 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 #pragma mark Assorted
 
 - (MPKitExecStatus *)setOptOut:(BOOL)optOut {
-    [UAirship shared].analytics.enabled = optOut;
+    [UAirship shared].analytics.enabled = !optOut;
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
@@ -247,9 +414,10 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 
         case MPUserIdentityFacebookCustomAudienceId:
             return UAIdentityFacebookCustomAudienceId;
+            
+        default:
+            return nil;
     }
-
-    return nil;
 }
 
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
@@ -307,9 +475,10 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
             }
 
             return YES;
+            
+        default:
+            return NO;
     }
-
-    return NO;
 }
 
 - (void)populateRetailEvent:(UARetailEvent *)event
@@ -320,15 +489,160 @@ NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
     event.identifier = product.sku;
     event.eventDescription = product.name;
     event.brand = product.brand;
-    event.eventValue = commerceEvent.transactionAttributes.revenue;
+    event.eventValue = [NSDecimalNumber decimalNumberWithDecimal:[commerceEvent.transactionAttributes.revenue decimalValue]];
 }
 
 - (void)updateChannelIntegration  {
     NSString *channelID = [UAirship push].channelID;
+
     if (channelID.length) {
-//        [[MParticle sharedInstance] setIntegrationAttribute:UAChannelIdIntegrationKey
-//                                                      value:channelID];
+        NSDictionary<NSString *, NSString *> *integrationAttributes = @{UAChannelIdIntegrationKey:channelID};
+        [[MParticle sharedInstance] setIntegrationAttributes:integrationAttributes forKit:[[self class] kitCode]];
     }
+}
+
+- (void)configureEventTagsMapping:(NSArray<NSDictionary<NSString *, NSString *> *> *)config {
+    [config enumerateObjectsUsingBlock:^(NSDictionary<NSString *,NSString *> * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        MPUATagMapping *tagMapping = [[MPUATagMapping alloc] initWithConfiguration:obj];
+        
+        if (tagMapping) {
+            [self.eventTagsMapping addObject:tagMapping];
+        }
+    }];
+}
+
+- (void)configureEventAttributeTagsMapping:(NSArray<NSDictionary<NSString *, NSString *> *> *)config {
+    [config enumerateObjectsUsingBlock:^(NSDictionary<NSString *,NSString *> * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        MPUATagMapping *tagMapping = [[MPUATagMapping alloc] initWithConfiguration:obj];
+        
+        if (tagMapping) {
+            [self.eventAttributeTagsMapping addObject:tagMapping];
+        }
+    }];
+}
+
+- (NSString *)stringRepresentation:(id)value {
+    NSString *stringRepresentation = nil;
+    
+    if ([value isKindOfClass:[NSString class]]) {
+        stringRepresentation = value;
+    } else if ([value isKindOfClass:[NSNumber class]]) {
+        stringRepresentation = [(NSNumber *)value stringValue];
+    } else if ([value isKindOfClass:[NSDate class]]) {
+        stringRepresentation = [MPDateFormatter stringFromDateRFC3339:value];
+    } else if ([value isKindOfClass:[NSData class]]) {
+        stringRepresentation = [[NSString alloc] initWithData:value encoding:NSUTF8StringEncoding];
+    } else {
+        return nil;
+    }
+    
+    return stringRepresentation;
+}
+
+- (void)setTagMappings:(NSArray<MPUATagMapping *> *)tagMappings forCommerceEvent:(MPCommerceEvent *)commerceEvent {
+    if (!tagMappings) {
+        return;
+    }
+    
+    NSString *stringToHash = [[NSString stringWithFormat:@"%@", [@([commerceEvent type]) stringValue]] lowercaseString];
+    NSString *hashedString = [MPIHasher hashString:stringToHash];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapHash == %@", hashedString];
+    NSArray<MPUATagMapping *> *matchTagMappings = [tagMappings filteredArrayUsingPredicate:predicate];
+
+    if (matchTagMappings.count > 0) {
+        [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
+            [[UAirship push] addTag:tagMapping.value];
+            [[UAirship push] updateRegistration];
+        }];
+    }
+}
+
+- (void)setTagMappings:(NSArray<MPUATagMapping *> *)tagMappings forEvent:(MPEvent *)event eventType:(NSNumber *)eventType {
+    if (!tagMappings) {
+        return;
+    }
+    
+    NSString *stringToHash = [[NSString stringWithFormat:@"%@%@", [eventType stringValue], event.name] lowercaseString];
+    NSString *hashedString = [MPIHasher hashString:stringToHash];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapHash == %@", hashedString];
+    NSArray<MPUATagMapping *> *matchTagMappings = [tagMappings filteredArrayUsingPredicate:predicate];
+
+    if (matchTagMappings.count > 0) {
+        [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
+            [[UAirship push] addTag:tagMapping.value];
+            [[UAirship push] updateRegistration];
+        }];
+    }
+}
+
+- (void)setTagMappings:(NSArray<MPUATagMapping *> *)tagMappings forAttributesInCommerceEvent:(MPCommerceEvent *)commerceEvent {
+    if (!tagMappings) {
+        return;
+    }
+    
+    NSDictionary *beautifiedAtrributes = [commerceEvent beautifiedAttributes];
+    NSDictionary *userDefinedAttributes = [commerceEvent userDefinedAttributes];
+    NSMutableDictionary<NSString *, id> *commerceEventAttributes = [[NSMutableDictionary alloc] initWithCapacity:(beautifiedAtrributes.count + userDefinedAttributes.count)];
+    
+    if (beautifiedAtrributes.count > 0) {
+        [commerceEventAttributes addEntriesFromDictionary:beautifiedAtrributes];
+    }
+    
+    if (userDefinedAttributes.count > 0) {
+        [commerceEventAttributes addEntriesFromDictionary:userDefinedAttributes];
+    }
+    
+    [commerceEventAttributes enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        NSString *stringToHash = [[NSString stringWithFormat:@"%@%@", [@([commerceEvent type]) stringValue], key] lowercaseString];
+        NSString *hashedString = [MPIHasher hashString:stringToHash];
+
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapHash == %@", hashedString];
+        NSArray<MPUATagMapping *> *matchTagMappings = [tagMappings filteredArrayUsingPredicate:predicate];
+        
+        if (matchTagMappings.count > 0) {
+            [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSString *attributeString = [self stringRepresentation:obj];
+
+                if (attributeString) {
+                    NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
+                    [[UAirship push] addTag:tagPlusAttributeValue];
+                    [[UAirship push] addTag:tagMapping.value];
+                    [[UAirship push] updateRegistration];
+                }
+            }];
+        }
+    }];
+}
+
+- (void)setTagMappings:(NSArray<MPUATagMapping *> *)tagMappings forAttributesInEvent:(MPEvent *)event eventType:(NSNumber *)eventType {
+    if (!tagMappings || event.info.count == 0) {
+        return;
+    }
+    
+    NSDictionary<NSString *, id> *eventInfo = event.info;
+    
+    [eventInfo enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id _Nonnull obj, BOOL * _Nonnull stop) {
+        NSString *stringToHash = [[NSString stringWithFormat:@"%@%@%@", [eventType stringValue], event.name, key] lowercaseString];
+        NSString *hashedString = [MPIHasher hashString:stringToHash];
+        
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapHash == %@", hashedString];
+        NSArray<MPUATagMapping *> *matchTagMappings = [tagMappings filteredArrayUsingPredicate:predicate];
+
+        if (matchTagMappings.count > 0) {
+            [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
+                NSString *attributeString = [self stringRepresentation:obj];
+                
+                if (attributeString) {
+                    NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
+                    [[UAirship push] addTag:tagPlusAttributeValue];
+                    [[UAirship push] addTag:tagMapping.value];
+                    [[UAirship push] updateRegistration];
+                }
+            }];
+        }
+    }];
 }
 
 #pragma mark App Delegate Integration
