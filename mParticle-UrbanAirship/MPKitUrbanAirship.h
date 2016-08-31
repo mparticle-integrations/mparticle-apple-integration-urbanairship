@@ -29,10 +29,4 @@
 @property (nonatomic, strong, nullable) NSDictionary *launchOptions;
 @property (nonatomic, unsafe_unretained, readonly) BOOL started;
 
-/**
- * Enable user notifications on the UAPush instance once available.
- * This will prompt the user to allow notifications.
- */
-+ (void)enableUserNotifications;
-
 @end
