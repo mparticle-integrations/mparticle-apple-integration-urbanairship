@@ -34,6 +34,11 @@
 #import "AirshipLib.h"
 #import "UARetailEvent.h"
 
+#if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+    #import <UserNotifications/UserNotifications.h>
+    #import <UserNotifications/UNUserNotificationCenter.h>
+#endif
+
 NSString* const UAIdentityEmail = @"email";
 NSString* const UAIdentityFacebook = @"facebook_id";
 NSString* const UAIdentityTwitter = @"twitter_id";
@@ -637,8 +642,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 - (MPKitExecStatus *)receivedUserNotification:(NSDictionary *)userInfo {
     // Check for UA identifiers
     if ([userInfo objectForKey:@"_"] || [userInfo objectForKey:@"com.urbanairship.metadata"]) {
-        [[UAirship push] appReceivedRemoteNotification:userInfo
-                                      applicationState:[UIApplication sharedApplication].applicationState];
+        [UAAppIntegration application:[UIApplication sharedApplication] didReceiveRemoteNotification:userInfo
+               fetchCompletionHandler:^(UIBackgroundFetchResult result) {}];
     }
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
@@ -646,10 +651,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo {
-    [[UAirship push] appReceivedActionWithIdentifier:identifier
-                                        notification:userInfo
-                                    applicationState:[UIApplication sharedApplication].applicationState
-                                   completionHandler:^{}];
+    [UAAppIntegration application:[UIApplication sharedApplication]
+       handleActionWithIdentifier:identifier
+            forRemoteNotification:userInfo
+                completionHandler:^{}];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
@@ -660,28 +665,44 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                                withResponseInfo:(NSDictionary *)responseInfo
                               completionHandler:(void (^)())completionHandler {
 
-    [[UAirship push] appReceivedActionWithIdentifier:identifier
-                                        notification:userInfo
-                                        responseInfo:responseInfo
-                                    applicationState:[UIApplication sharedApplication].applicationState
-                                   completionHandler:completionHandler];
+    [UAAppIntegration application:[UIApplication sharedApplication]
+       handleActionWithIdentifier:identifier
+            forRemoteNotification:userInfo
+                 withResponseInfo:responseInfo
+                completionHandler:completionHandler];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
 - (MPKitExecStatus *)setDeviceToken:(NSData *)deviceToken {
-    [[UAirship push] appRegisteredForRemoteNotificationsWithDeviceToken:deviceToken];
+    [UAAppIntegration application:[UIApplication sharedApplication] didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
 - (MPKitExecStatus *)didRegisterUserNotificationSettings:(UIUserNotificationSettings *)settings {
-    [[UAirship push] appRegisteredUserNotificationSettings];
+    [UAAppIntegration application:[UIApplication sharedApplication] didRegisterUserNotificationSettings:settings];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
 }
+
+#if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification {
+    [UAAppIntegration userNotificationCenter:center willPresentNotification:notification withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
+}
+
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response {
+    [UAAppIntegration userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:^{}];
+    
+    MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
+}
+#endif
 
 @end
