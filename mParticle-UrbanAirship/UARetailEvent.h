@@ -24,9 +24,11 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "AirshipLib.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
+
+@class UACustomEvent;
 
 /**
  * A UARetailEvent captures information regarding a custom retail event for
