@@ -412,9 +412,16 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
     UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name];
+    Class NSNumberClass = [NSNumber class];
 
-    for (NSString* key in event.info) {
-        [customEvent setValue:event.info[key] forKey:key];
+    for (NSString *key in event.info) {
+        id value = event.info[key];
+
+        if ([value isKindOfClass:NSNumberClass]) {
+            [customEvent setNumberProperty:value forKey:key];
+        } else {
+            [customEvent setStringProperty:[self stringRepresentation:value] forKey:key];
+        }
     }
 
     [[UAirship shared].analytics addEvent:customEvent];
