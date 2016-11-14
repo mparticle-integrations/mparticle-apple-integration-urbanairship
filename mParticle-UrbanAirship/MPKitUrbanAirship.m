@@ -360,7 +360,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     }
 
     UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
-    [identifiers setValue:identityString forKey:airshipIdentity];
+    [identifiers setIdentifier:identityString forKey:airshipIdentity];
 
     [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
 
