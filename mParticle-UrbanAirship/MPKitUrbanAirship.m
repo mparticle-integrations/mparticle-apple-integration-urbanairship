@@ -32,7 +32,6 @@
 #import "MPDateFormatter.h"
 #import "MPEnums.h"
 #import "AirshipLib.h"
-#import "UARetailEvent.h"
 
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
     #import <UserNotifications/UserNotifications.h>
@@ -278,7 +277,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name
                                                         value:[NSNumber numberWithDouble:increaseAmount]];
 
-    [[UAirship shared].analytics addEvent:customEvent];
+    [customEvent track];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
@@ -424,7 +423,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
     }
 
-    [[UAirship shared].analytics addEvent:customEvent];
+    [customEvent track];
 }
 
 - (BOOL)logAirshipRetailEventFromCommerceEvent:(MPCommerceEvent *)commerceEvent {
@@ -436,9 +435,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionPurchase:
 
             for (id product in commerceEvent.products) {
-                UARetailEvent *retailEvent = [UARetailEvent purchasedEvent];
-                [self populateRetailEvent:retailEvent commerceEvent:commerceEvent product:product];
-                [retailEvent track];
+                UARetailEventTemplate *template = [UARetailEventTemplate purchasedTemplate];
+                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+                [[template createEvent] track];
             }
 
             return YES;
@@ -446,9 +445,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionAddToCart:
 
             for (id product in commerceEvent.products) {
-                UARetailEvent *retailEvent = [UARetailEvent addedToCartEvent];
-                [self populateRetailEvent:retailEvent commerceEvent:commerceEvent product:product];
-                [retailEvent track];
+                UARetailEventTemplate *template = [UARetailEventTemplate addedToCartTemplate];
+                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+                [[template createEvent] track];
             }
 
             return YES;
@@ -456,9 +455,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionClick:
 
             for (id product in commerceEvent.products) {
-                UARetailEvent *retailEvent = [UARetailEvent browsedEvent];
-                [self populateRetailEvent:retailEvent commerceEvent:commerceEvent product:product];
-                [retailEvent track];
+                UARetailEventTemplate *template = [UARetailEventTemplate browsedTemplate];
+                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+                [[template createEvent] track];
             }
 
             return YES;
@@ -466,9 +465,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionAddToWishList:
 
             for (id product in commerceEvent.products) {
-                UARetailEvent *retailEvent = [UARetailEvent starredProductEvent];
-                [self populateRetailEvent:retailEvent commerceEvent:commerceEvent product:product];
-                [retailEvent track];
+                UARetailEventTemplate *template = [UARetailEventTemplate starredProductTemplate];
+                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+                [[template createEvent] track];
             }
 
             return YES;
@@ -478,15 +477,15 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     }
 }
 
-- (void)populateRetailEvent:(UARetailEvent *)event
-              commerceEvent:(MPCommerceEvent *)commerceEvent
-                    product:(MPProduct *)product {
+- (void)populateRetailEventTemplate:(UARetailEventTemplate *)template
+                      commerceEvent:(MPCommerceEvent *)commerceEvent
+                            product:(MPProduct *)product {
 
-    event.category = product.category;
-    event.identifier = product.sku;
-    event.eventDescription = product.name;
-    event.brand = product.brand;
-    event.eventValue = [NSDecimalNumber decimalNumberWithDecimal:[commerceEvent.transactionAttributes.revenue decimalValue]];
+    template.category = product.category;
+    template.identifier = product.sku;
+    template.eventDescription = product.name;
+    template.brand = product.brand;
+    template.eventValue = [NSDecimalNumber decimalNumberWithDecimal:[commerceEvent.transactionAttributes.revenue decimalValue]];
 }
 
 - (void)updateChannelIntegration  {
