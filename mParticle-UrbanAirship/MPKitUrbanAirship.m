@@ -485,7 +485,16 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     template.identifier = product.sku;
     template.eventDescription = product.name;
     template.brand = product.brand;
-    template.eventValue = [NSDecimalNumber decimalNumberWithDecimal:[commerceEvent.transactionAttributes.revenue decimalValue]];
+
+    if (product.price == nil) {
+        template.eventValue = [NSDecimalNumber zero];
+    } else if (product.quantity == nil) {
+        template.eventValue = [NSDecimalNumber decimalNumberWithDecimal:[product.price decimalValue]];
+    } else {
+        NSDecimalNumber *decimalPrice = [NSDecimalNumber decimalNumberWithDecimal:[product.price decimalValue]];
+        NSDecimalNumber *decimalQuantity = [NSDecimalNumber decimalNumberWithDecimal:[product.quantity decimalValue]];
+        template.eventValue = [decimalPrice decimalNumberByMultiplyingBy:decimalQuantity];
+    }
 }
 
 - (void)updateChannelIntegration  {
