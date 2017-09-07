@@ -437,6 +437,12 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
             for (id product in commerceEvent.products) {
                 UARetailEventTemplate *template = [UARetailEventTemplate purchasedTemplate];
                 [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+                
+                NSString *transactionId = commerceEvent.transactionAttributes.transactionId;
+                if (transactionId) {
+                    template.transactionID = transactionId;
+                }
+                
                 [[template createEvent] track];
             }
 
