@@ -115,8 +115,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
 + (void)load {
     MPKitRegister *kitRegister = [[MPKitRegister alloc] initWithName:@"Urban Airship"
-                                                           className:@"MPKitUrbanAirship"
-                                                    startImmediately:YES];
+                                                           className:@"MPKitUrbanAirship"];
     [MParticle registerExtension:kitRegister];
 }
 
@@ -124,24 +123,21 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
 #pragma mark Kit instance and lifecycle
 
-- (nonnull instancetype)initWithConfiguration:(nonnull NSDictionary *)configuration startImmediately:(BOOL)startImmediately {
-    self = [super init];
+- (MPKitExecStatus *)didFinishLaunchingWithConfiguration:(NSDictionary *)configuration {
+    MPKitExecStatus *execStatus = nil;
 
-    if (self) {
-        self.configuration = configuration;
+    self.configuration = configuration;
+    
+    NSString *auxString = configuration[UAConfigEnableTags];
+    _enableTags = auxString ? [auxString boolValue] : NO;
+    
+    auxString = configuration[UAConfigIncludeUserAttributes];
+    _includeUserAttributes = auxString ? [auxString boolValue] : NO;
+    
+    [self start];
 
-        NSString *auxString = configuration[UAConfigEnableTags];
-        _enableTags = auxString ? [auxString boolValue] : NO;
-
-        auxString = configuration[UAConfigIncludeUserAttributes];
-        _includeUserAttributes = auxString ? [auxString boolValue] : NO;
-
-        if (startImmediately) {
-            [self start];
-        }
-    }
-
-    return self;
+    execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[[self class] kitCode] returnCode:MPKitReturnCodeSuccess];
+    return execStatus;
 }
 
 - (void)start {
