@@ -32,8 +32,6 @@ NSString* const appSecret = @"app_secret";
                                       secret:appSecret];
 
 
-    [MPKitUrbanAirship enableUserNotifications];
-
     // Override point for customization after application launch.
     return YES;
 }
