@@ -38,21 +38,28 @@
     #import <UserNotifications/UNUserNotificationCenter.h>
 #endif
 
-NSString* const UAIdentityEmail = @"email";
-NSString* const UAIdentityFacebook = @"facebook_id";
-NSString* const UAIdentityTwitter = @"twitter_id";
-NSString* const UAIdentityGoogle = @"google_id";
-NSString* const UAIdentityMicrosoft = @"microsoft_id";
-NSString* const UAIdentityYahoo = @"yahoo_id";
-NSString* const UAIdentityFacebookCustomAudienceId = @"facebook_custom_audience_id";
-NSString* const UAIdentityCustomer = @"customer_id";
+NSString * const UAIdentityEmail = @"email";
+NSString * const UAIdentityFacebook = @"facebook_id";
+NSString * const UAIdentityTwitter = @"twitter_id";
+NSString * const UAIdentityGoogle = @"google_id";
+NSString * const UAIdentityMicrosoft = @"microsoft_id";
+NSString * const UAIdentityYahoo = @"yahoo_id";
+NSString * const UAIdentityFacebookCustomAudienceId = @"facebook_custom_audience_id";
+NSString * const UAIdentityCustomer = @"customer_id";
 
-NSString* const UAConfigAppKey = @"applicationKey";
-NSString* const UAConfigAppSecret = @"applicationSecret";
-NSString *const UAConfigEnableTags = @"enableTags";
-NSString *const UAConfigIncludeUserAttributes = @"includeUserAttributes";
+NSString * const UAConfigAppKey = @"applicationKey";
+NSString * const UAConfigAppSecret = @"applicationSecret";
+NSString * const UAConfigEnableTags = @"enableTags";
+NSString * const UAConfigIncludeUserAttributes = @"includeUserAttributes";
+NSString * const UAConfigNamedUserId = @"namedUserIdField";
 
-NSString* const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
+// Possible values for UAConfigNamedUserId
+NSString * const UAConfigNamedUserIdEmail = @"email";
+NSString * const UAConfigNamedUserIdCustomerdId = @"customerId";
+NSString * const UAConfigNamedUserIdOther = @"other";
+NSString * const UAConfigNamedUserIdNone = @"none";
+
+NSString * const UAChannelIdIntegrationKey = @"com.urbanairship.channel_id";
 
 NSString * const kMPUAEventTagKey = @"eventUserTags";
 NSString * const kMPUAEventAttributeTagKey = @"eventAttributeUserTags";
@@ -60,6 +67,7 @@ NSString * const kMPUAMapTypeEventClass = @"EventClass.Id";
 NSString * const kMPUAMapTypeEventClassDetails = @"EventClassDetails.Id";
 NSString * const kMPUAMapTypeEventAttributeClass = @"EventAttributeClass.Id";
 NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassDetails.Id";
+
 
 
 #pragma mark - MPUATagMapping
@@ -351,20 +359,16 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (MPKitExecStatus *)setUserIdentity:(NSString *)identityString identityType:(MPUserIdentity)identityType {
-    NSString *airshipIdentity = [self mapIdentityType:identityType];
+    BOOL namedUserSet = [self setNamedUser:identityString identityType:identityType];
+    BOOL associatedIdentifierSet = [self setAssociatedIdentifier:identityString identityType:identityType];
 
-    if (!airshipIdentity) {
+    if (namedUserSet || associatedIdentifierSet) {
         return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                             returnCode:MPKitReturnCodeUnavailable];
+                                             returnCode:MPKitReturnCodeSuccess];
     }
 
-    UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
-    [identifiers setIdentifier:identityString forKey:airshipIdentity];
-
-    [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
-
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                         returnCode:MPKitReturnCodeSuccess];
+                                         returnCode:MPKitReturnCodeUnavailable];
 }
 
 #pragma mark Assorted
@@ -378,35 +382,89 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
 #pragma mark Helpers
 
-- (NSString *)mapIdentityType:(MPUserIdentity)identityType {
+
+
+/**
+ * Sets the named user.
+ * @param identityString The identifier.
+ * @param identityType The mParticle identifier type.
+ * @return `YES` if the named user was set, otherwise `NO`.
+ */
+- (BOOL)setNamedUser:(NSString *)identityString identityType:(MPUserIdentity)identityType {
+    NSString *namedUserConfig = self.configuration[UAConfigNamedUserId];
+    if (!namedUserConfig || [namedUserConfig isEqualToString:UAConfigNamedUserIdNone]) {
+        return NO;
+    }
+
+    MPUserIdentity mappedType;
+    if ([namedUserConfig isEqualToString:UAConfigNamedUserIdEmail]) {
+        mappedType = MPUserIdentityEmail;
+    } else if ([namedUserConfig isEqualToString:UAConfigNamedUserIdOther]) {
+        mappedType = MPUserIdentityOther;
+    } else if ([namedUserConfig isEqualToString:UAConfigNamedUserIdCustomerdId]) {
+        mappedType = MPUserIdentityCustomerId;;
+    } else {
+        return NO;
+    }
+
+    if (mappedType != identityType) {
+        return NO;
+    }
+
+    [UAirship namedUser].identifier = identityString;
+    return YES;
+}
+
+/**
+ * Sets the associated identifier.
+ * @param identityString The identifier.
+ * @param identityType The mParticle identifier type.
+ * @return `YES` if the identifier was set, otherwise `NO`.
+ */
+- (BOOL)setAssociatedIdentifier:(NSString *)identityString identityType:(MPUserIdentity)identityType {
+    NSString *key;
     switch (identityType) {
         case MPUserIdentityCustomerId:
-            return UAIdentityCustomer;
+            key = UAIdentityCustomer;
+            break;
 
         case MPUserIdentityFacebook:
-            return UAIdentityFacebook;
+            key = UAIdentityFacebook;
+            break;
 
         case MPUserIdentityTwitter:
-            return UAIdentityTwitter;
+            key = UAIdentityTwitter;
+            break;
 
         case MPUserIdentityGoogle:
-            return UAIdentityGoogle;
+            key = UAIdentityGoogle;
+            break;
 
         case MPUserIdentityMicrosoft:
-            return UAIdentityMicrosoft;
+            key = UAIdentityMicrosoft;
+            break;
 
         case MPUserIdentityYahoo:
-            return UAIdentityYahoo;
+            key = UAIdentityYahoo;
+            break;
 
         case MPUserIdentityEmail:
-            return UAIdentityEmail;
+            key = UAIdentityEmail;
+            break;
 
         case MPUserIdentityFacebookCustomAudienceId:
-            return UAIdentityFacebookCustomAudienceId;
+            key = UAIdentityFacebookCustomAudienceId;
+            break;
 
         default:
-            return nil;
+            return false;
     }
+
+    UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
+    [identifiers setIdentifier:identityString forKey:key];
+    [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
+
+    return YES;
 }
 
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
