@@ -330,12 +330,13 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 - (MPKitExecStatus *)setUserAttribute:(NSString *)key value:(NSString *)value {
     MPKitReturnCode returnCode;
 
-    if (_enableTags) {
+    if (_enableTags && _includeUserAttributes) {
         NSString *uaTag = nil;
+        
+        BOOL keyValid = key && (NSNull *)key != [NSNull null] && ![key isEqualToString:@""];
+        BOOL valueValid = value && (NSNull *)value != [NSNull null] && ![value isEqualToString:@""];
 
-        if (!value || (NSNull *)value == [NSNull null] || [value isEqualToString:@""]) {
-            uaTag = key;
-        } else if (_includeUserAttributes) {
+        if (keyValid && valueValid) {
             uaTag = [NSString stringWithFormat:@"%@-%@", key, value];
         }
 
@@ -351,6 +352,56 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         returnCode = MPKitReturnCodeCannotExecute;
     }
 
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:returnCode];
+}
+
+- (MPKitExecStatus *)setUserTag:(NSString *)tag {
+    MPKitReturnCode returnCode;
+    
+    if (_enableTags) {
+        NSString *uaTag = nil;
+        
+        if (tag && (NSNull *)tag != [NSNull null] && ![tag isEqualToString:@""]) {
+            uaTag = tag;
+        }
+        
+        if (uaTag) {
+            [[UAirship push] addTag:uaTag];
+            [[UAirship push] updateRegistration];
+            
+            returnCode = MPKitReturnCodeSuccess;
+        } else {
+            returnCode = MPKitReturnCodeRequirementsNotMet;
+        }
+    } else {
+        returnCode = MPKitReturnCodeCannotExecute;
+    }
+    
+    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:returnCode];
+}
+
+- (nonnull MPKitExecStatus *)removeUserAttribute:(nonnull NSString *)key {
+    MPKitReturnCode returnCode;
+    
+    if (_enableTags) {
+        NSString *uaTag = nil;
+        
+        if (key && (NSNull *)key != [NSNull null] && ![key isEqualToString:@""]) {
+            uaTag = key;
+        }
+        
+        if (uaTag) {
+            [[UAirship push] removeTag:uaTag];
+            [[UAirship push] updateRegistration];
+            
+            returnCode = MPKitReturnCodeSuccess;
+        } else {
+            returnCode = MPKitReturnCodeRequirementsNotMet;
+        }
+    } else {
+        returnCode = MPKitReturnCodeCannotExecute;
+    }
+    
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:returnCode];
 }
 
