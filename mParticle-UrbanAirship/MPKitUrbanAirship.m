@@ -167,6 +167,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
             config.inProduction = YES;
         }
 
+        [UAirship push].userPushNotificationsEnabledByDefault = NO;
         [UAirship takeOff:config];
         [[UAirship push] updateRegistration];
 
