@@ -753,8 +753,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (MPKitExecStatus *)setDeviceToken:(NSData *)deviceToken {
-    [UAirship push].userPushNotificationsEnabled = YES;
-
     [UAAppIntegration application:[UIApplication sharedApplication] didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
