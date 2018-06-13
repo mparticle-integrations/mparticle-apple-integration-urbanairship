@@ -28,9 +28,8 @@ NSString* const appSecret = @"app_secret";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [[MParticle sharedInstance] startWithKey:appKey
-                                      secret:appSecret];
-
+    MParticleOptions *options = [MParticleOptions optionsWithKey:appKey secret:appSecret];
+    [[MParticle sharedInstance] startWithOptions: options];
 
     // Override point for customization after application launch.
     return YES;
