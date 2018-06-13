@@ -152,7 +152,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     static dispatch_once_t kitPredicate;
 
     dispatch_once(&kitPredicate, ^{
-        _started = YES;
+        self->_started = YES;
 
         UAConfig *config = [UAConfig defaultConfig];
         config.automaticSetupEnabled = NO;
@@ -787,7 +787,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 - (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier
                           forRemoteNotification:(NSDictionary *)userInfo
                                withResponseInfo:(NSDictionary *)responseInfo
-                              completionHandler:(void (^)())completionHandler {
+                              completionHandler:(void (^)(void))completionHandler {
 
     [UAAppIntegration application:[UIApplication sharedApplication]
        handleActionWithIdentifier:identifier
@@ -813,20 +813,18 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
-#if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification {
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification  API_AVAILABLE(ios(10.0)){
     [UAAppIntegration userNotificationCenter:center willPresentNotification:notification withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
 
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
-- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response {
+- (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response  API_AVAILABLE(ios(10.0)){
     [UAAppIntegration userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:^{}];
 
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
-#endif
 
 @end
