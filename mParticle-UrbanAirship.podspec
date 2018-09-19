@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-UrbanAirship"
-    s.version          = "7.5.7"
+    s.version          = "7.6.0"
     s.summary          = "Urban Airship integration for mParticle"
 
     s.description      = <<-DESC
@@ -15,6 +15,6 @@ Pod::Spec.new do |s|
 
     s.ios.deployment_target = "9.0"
     s.ios.source_files      = 'mParticle-UrbanAirship/*.{h,m,mm}'
-    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 7.5.0'
+    s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 7.6.0'
     s.ios.dependency 'UrbanAirship-iOS-SDK', '~> 9.0'
 end
