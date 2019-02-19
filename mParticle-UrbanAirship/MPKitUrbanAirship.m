@@ -774,40 +774,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo {
-    [UAAppIntegration application:[UIApplication sharedApplication]
-       handleActionWithIdentifier:identifier
-            forRemoteNotification:userInfo
-                completionHandler:^{}];
-
-    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                         returnCode:MPKitReturnCodeSuccess];
-}
-
-- (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier
-                          forRemoteNotification:(NSDictionary *)userInfo
-                               withResponseInfo:(NSDictionary *)responseInfo
-                              completionHandler:(void (^)(void))completionHandler {
-
-    [UAAppIntegration application:[UIApplication sharedApplication]
-       handleActionWithIdentifier:identifier
-            forRemoteNotification:userInfo
-                 withResponseInfo:responseInfo
-                completionHandler:completionHandler];
-
-    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                         returnCode:MPKitReturnCodeSuccess];
-}
-
 - (MPKitExecStatus *)setDeviceToken:(NSData *)deviceToken {
     [UAAppIntegration application:[UIApplication sharedApplication] didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-
-    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                         returnCode:MPKitReturnCodeSuccess];
-}
-
-- (MPKitExecStatus *)didRegisterUserNotificationSettings:(UIUserNotificationSettings *)settings {
-    [UAAppIntegration application:[UIApplication sharedApplication] didRegisterUserNotificationSettings:settings];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
