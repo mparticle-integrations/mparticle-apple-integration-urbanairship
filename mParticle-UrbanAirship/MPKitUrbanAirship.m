@@ -157,6 +157,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         UAConfig *config = [UAConfig defaultConfig];
         config.automaticSetupEnabled = NO;
 
+        // Enable passive APNS registration
+        config.requestAuthorizationToUseNotifications = NO;
+
         if ([MParticle sharedInstance].environment == MPEnvironmentDevelopment) {
             config.developmentAppKey = self.configuration[UAConfigAppKey];
             config.developmentAppSecret = self.configuration[UAConfigAppSecret];
@@ -168,6 +171,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
 
         [UAirship takeOff:config];
+        UAirship.push.userPushNotificationsEnabledByDefault = YES;
         [[UAirship push] updateRegistration];
 
         NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
