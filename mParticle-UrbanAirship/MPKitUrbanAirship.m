@@ -199,8 +199,14 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
     // Configure event tags mapping
 
-    NSString *tagMappingStr = [configuration[kMPUAEventTagKey] stringByRemovingPercentEncoding];
-    NSData *tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *tagMappingStr;
+    NSData *tagMappingData;
+
+    if (configuration[kMPUAEventTagKey] != nil && configuration[kMPUAEventTagKey] != [NSNull null]) {
+        tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
+        tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    }
+
     NSError *error = nil;
     NSArray<NSDictionary<NSString *, NSString *> *> *tagMappingConfig = nil;
 
@@ -214,8 +220,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     }
 
     // Configure event attribute tags mapping
-    tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
-    tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    if (configuration[kMPUAEventAttributeTagKey] != nil && configuration[kMPUAEventAttributeTagKey] != [NSNull null]) {
+        tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
+        tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    }
     error = nil;
     tagMappingConfig = nil;
 
