@@ -128,7 +128,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 + (NSSet *)defaultCategories {
-    return [UANotificationCategories createCategoriesFromFile: [[UAirship resources] pathForResource:@"UANotificationCategories" ofType:@"plist"]];
+    return [UANotificationCategories createCategoriesFromFile:[[UAirship resources] pathForResource:@"UANotificationCategories" ofType:@"plist"]];
 }
 
 #pragma mark - MPKitInstanceProtocol methods
@@ -210,7 +210,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     NSString *tagMappingStr;
     NSData *tagMappingData;
 
-    if (configuration[kMPUAEventTagKey] != nil && configuration[kMPUAEventTagKey] != [NSNull null]) {
+    if (configuration && configuration[kMPUAEventTagKey] != [NSNull null]) {
         tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
         tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
     }
@@ -228,7 +228,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     }
 
     // Configure event attribute tags mapping
-    if (configuration[kMPUAEventAttributeTagKey] != nil && configuration[kMPUAEventAttributeTagKey] != [NSNull null]) {
+    if (configuration && configuration[kMPUAEventAttributeTagKey] != [NSNull null]) {
         tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
         tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
     }
