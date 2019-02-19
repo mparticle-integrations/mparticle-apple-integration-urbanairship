@@ -12,6 +12,18 @@ A kit takes care of initializing and forwarding information depending on what yo
 Please refer to installation instructions in the core mParticle Apple SDK [README](https://github.com/mParticle/mparticle-apple-sdk#get-the-sdk), or check out our [SDK Documentation](http://docs.mparticle.com/#mobile-sdk-guide) site to learn more.
 
 
+## Push Registration
+
+Push registration is not handled by the Urban Airship SDK when the passive registration setting is enabled. This prevents out-of-the-box categories from being registered automatically. 
+
+Registering out-of-the-box categories manually can be accomplished by accessing the defaultCategories class method on MPKitUrbanAirship and setting them on the UNNotificationCenter:
+
+```swift
+    UNUserNotificationCenter.current().requestAuthorization(options: [UNAuthorizationOptions.alert]) { (success, err) in
+        UNUserNotificationCenter.current().setNotificationCategories(MPKitUrbanAirship.defaultCategories())
+    }
+```
+
 ## Support
 
 Questions? Give us a shout at <support@mparticle.com>
