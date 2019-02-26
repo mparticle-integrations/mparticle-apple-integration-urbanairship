@@ -127,6 +127,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     [MParticle registerExtension:kitRegister];
 }
 
++ (NSSet *)defaultCategories {
+    return [UANotificationCategories createCategoriesFromFile:[[UAirship resources] pathForResource:@"UANotificationCategories" ofType:@"plist"]];
+}
+
 #pragma mark - MPKitInstanceProtocol methods
 
 #pragma mark Kit instance and lifecycle
@@ -157,6 +161,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         UAConfig *config = [UAConfig defaultConfig];
         config.automaticSetupEnabled = NO;
 
+        // Enable passive APNS registration
+        config.requestAuthorizationToUseNotifications = NO;
+
         if ([MParticle sharedInstance].environment == MPEnvironmentDevelopment) {
             config.developmentAppKey = self.configuration[UAConfigAppKey];
             config.developmentAppSecret = self.configuration[UAConfigAppSecret];
@@ -168,6 +175,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
 
         [UAirship takeOff:config];
+        UAirship.push.userPushNotificationsEnabledByDefault = YES;
         [[UAirship push] updateRegistration];
 
         NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
@@ -199,8 +207,14 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
     // Configure event tags mapping
 
-    NSString *tagMappingStr = [configuration[kMPUAEventTagKey] stringByRemovingPercentEncoding];
-    NSData *tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *tagMappingStr;
+    NSData *tagMappingData;
+
+    if (configuration && configuration[kMPUAEventTagKey] != [NSNull null]) {
+        tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
+        tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    }
+
     NSError *error = nil;
     NSArray<NSDictionary<NSString *, NSString *> *> *tagMappingConfig = nil;
 
@@ -214,8 +228,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     }
 
     // Configure event attribute tags mapping
-    tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
-    tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    if (configuration && configuration[kMPUAEventAttributeTagKey] != [NSNull null]) {
+        tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
+        tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
+    }
     error = nil;
     tagMappingConfig = nil;
 
@@ -774,40 +790,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                                          returnCode:MPKitReturnCodeSuccess];
 }
 
-- (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo {
-    [UAAppIntegration application:[UIApplication sharedApplication]
-       handleActionWithIdentifier:identifier
-            forRemoteNotification:userInfo
-                completionHandler:^{}];
-
-    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                         returnCode:MPKitReturnCodeSuccess];
-}
-
-- (MPKitExecStatus *)handleActionWithIdentifier:(NSString *)identifier
-                          forRemoteNotification:(NSDictionary *)userInfo
-                               withResponseInfo:(NSDictionary *)responseInfo
-                              completionHandler:(void (^)(void))completionHandler {
-
-    [UAAppIntegration application:[UIApplication sharedApplication]
-       handleActionWithIdentifier:identifier
-            forRemoteNotification:userInfo
-                 withResponseInfo:responseInfo
-                completionHandler:completionHandler];
-
-    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                         returnCode:MPKitReturnCodeSuccess];
-}
-
 - (MPKitExecStatus *)setDeviceToken:(NSData *)deviceToken {
     [UAAppIntegration application:[UIApplication sharedApplication] didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-
-    return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
-                                         returnCode:MPKitReturnCodeSuccess];
-}
-
-- (MPKitExecStatus *)didRegisterUserNotificationSettings:(UIUserNotificationSettings *)settings {
-    [UAAppIntegration application:[UIApplication sharedApplication] didRegisterUserNotificationSettings:settings];
 
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-UrbanAirship"
-    s.version          = "7.8.6"
+    s.version          = "7.9.0"
     s.summary          = "Urban Airship integration for mParticle"
 
     s.description      = <<-DESC
@@ -13,8 +13,8 @@ Pod::Spec.new do |s|
     s.source           = { :git => "https://github.com/mparticle-integrations/mparticle-apple-integration-urbanairship.git", :tag => s.version.to_s }
     s.social_media_url = "https://twitter.com/mparticles"
 
-    s.ios.deployment_target = "9.0"
+    s.ios.deployment_target = "10.0"
     s.ios.source_files      = 'mParticle-UrbanAirship/*.{h,m,mm}'
     s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 7.8.0'
-    s.ios.dependency 'UrbanAirship-iOS-SDK', '~> 9.0'
+    s.ios.dependency 'UrbanAirship-iOS-SDK', '~> 10.1'
 end

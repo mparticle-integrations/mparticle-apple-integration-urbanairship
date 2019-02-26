@@ -29,4 +29,12 @@
 @property (nonatomic, strong, nullable) NSDictionary *launchOptions;
 @property (nonatomic, unsafe_unretained, readonly) BOOL started;
 
+/**
+* Default out-of-the-box categories.
+*
+* @note These notification categories need to be set on the current notification center to retain
+* out-of-the-box categories functionality.
+*/
++ (NSSet<UNNotificationCategory *> *)defaultCategories;
+
 @end
