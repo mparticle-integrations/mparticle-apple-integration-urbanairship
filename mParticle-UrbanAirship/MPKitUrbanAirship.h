@@ -35,6 +35,6 @@
 * @note These notification categories need to be set on the current notification center to retain
 * out-of-the-box categories functionality.
 */
-+ (NSSet<UNNotificationCategory *> *)defaultCategories;
++ (NSSet<UNNotificationCategory *> *_Nonnull)defaultCategories;
 
 @end
