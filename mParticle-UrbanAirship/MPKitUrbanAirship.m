@@ -1,18 +1,4 @@
 #import "MPKitUrbanAirship.h"
-#import "MPEvent.h"
-#import "MPProduct.h"
-#import "MPProduct+Dictionary.h"
-#import "MPCommerceEvent.h"
-#import "MPCommerceEvent+Dictionary.h"
-#import "MPCommerceEventInstruction.h"
-#import "MPTransactionAttributes.h"
-#import "MPTransactionAttributes+Dictionary.h"
-#import "MPIHasher.h"
-#import "mParticle.h"
-#import "MPKitRegister.h"
-#import "NSDictionary+MPCaseInsensitive.h"
-#import "MPDateFormatter.h"
-#import "MPEnums.h"
 #import "AirshipLib.h"
 
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
