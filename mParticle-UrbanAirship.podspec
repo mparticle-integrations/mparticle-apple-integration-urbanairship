@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = "mParticle-UrbanAirship"
-    s.version          = "7.10.4"
+    s.version          = "7.10.5"
     s.summary          = "Urban Airship integration for mParticle"
 
     s.description      = <<-DESC
