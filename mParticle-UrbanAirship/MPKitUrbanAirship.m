@@ -36,7 +36,8 @@ NSString * const kMPUAMapTypeEventClassDetails = @"EventClassDetails.Id";
 NSString * const kMPUAMapTypeEventAttributeClass = @"EventAttributeClass.Id";
 NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassDetails.Id";
 
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 #pragma mark - MPUATagMapping
 @interface MPUATagMapping : NSObject
@@ -780,3 +781,5 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 @end
+
+#pragma clang diagnostic pop

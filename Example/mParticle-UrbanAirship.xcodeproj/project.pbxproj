@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B5F48105B1082DF642452EB /* Pods_mParticle_UrbanAirship_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DEB38F8B2301613154B80AE5 /* Pods_mParticle_UrbanAirship_Example.framework */; };
 		6003F58E195388D20070C39A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58D195388D20070C39A /* Foundation.framework */; };
 		6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F58F195388D20070C39A /* CoreGraphics.framework */; };
 		6003F592195388D20070C39A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6003F591195388D20070C39A /* UIKit.framework */; };
@@ -33,6 +34,7 @@
 
 /* Begin PBXFileReference section */
 		1BB3365D0EEED8692DBF8D5C /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		30059ADB5FBA6BA715215519 /* Pods-mParticle-UrbanAirship_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mParticle-UrbanAirship_Example.release.xcconfig"; path = "Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example.release.xcconfig"; sourceTree = "<group>"; };
 		56F2F552649DFF90A34E821E /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		6003F58A195388D20070C39A /* mParticle-UrbanAirship_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "mParticle-UrbanAirship_Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -51,6 +53,8 @@
 		6003F5AF195388D20070C39A /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		9AF9C98E1257B4C530E9A277 /* mParticle-UrbanAirship.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "mParticle-UrbanAirship.podspec"; path = "../mParticle-UrbanAirship.podspec"; sourceTree = "<group>"; };
+		DA2BBBC58795D028C30691CB /* Pods-mParticle-UrbanAirship_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-mParticle-UrbanAirship_Example.debug.xcconfig"; path = "Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example.debug.xcconfig"; sourceTree = "<group>"; };
+		DEB38F8B2301613154B80AE5 /* Pods_mParticle_UrbanAirship_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_mParticle_UrbanAirship_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +65,7 @@
 				6003F590195388D20070C39A /* CoreGraphics.framework in Frameworks */,
 				6003F592195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F58E195388D20070C39A /* Foundation.framework in Frameworks */,
+				5B5F48105B1082DF642452EB /* Pods_mParticle_UrbanAirship_Example.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +89,7 @@
 				6003F593195388D20070C39A /* Example for mParticle-UrbanAirship */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
+				C03E8D8F82779BBD08DD1A0A /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,6 +109,7 @@
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
+				DEB38F8B2301613154B80AE5 /* Pods_mParticle_UrbanAirship_Example.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,6 +150,16 @@
 			name = "Podspec Metadata";
 			sourceTree = "<group>";
 		};
+		C03E8D8F82779BBD08DD1A0A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				DA2BBBC58795D028C30691CB /* Pods-mParticle-UrbanAirship_Example.debug.xcconfig */,
+				30059ADB5FBA6BA715215519 /* Pods-mParticle-UrbanAirship_Example.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -150,9 +167,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5BF195388D20070C39A /* Build configuration list for PBXNativeTarget "mParticle-UrbanAirship_Example" */;
 			buildPhases = (
+				0A3D4592667997451BE18425 /* [CP] Check Pods Manifest.lock */,
 				6003F586195388D20070C39A /* Sources */,
 				6003F587195388D20070C39A /* Frameworks */,
 				6003F588195388D20070C39A /* Resources */,
+				A0717260A74108C25451B0F1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -210,6 +229,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -243,6 +263,53 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0A3D4592667997451BE18425 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-mParticle-UrbanAirship_Example-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A0717260A74108C25451B0F1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/UrbanAirship-iOS-SDK/AirshipKit.framework",
+				"${BUILT_PRODUCTS_DIR}/mParticle-Apple-SDK/mParticle_Apple_SDK.framework",
+				"${BUILT_PRODUCTS_DIR}/mParticle-UrbanAirship/mParticle_UrbanAirship.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AirshipKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/mParticle_Apple_SDK.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/mParticle_UrbanAirship.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-mParticle-UrbanAirship_Example/Pods-mParticle-UrbanAirship_Example-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		6003F586195388D20070C39A /* Sources */ = {
@@ -385,13 +452,14 @@
 		};
 		6003F5C0195388D20070C39A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = DA2BBBC58795D028C30691CB /* Pods-mParticle-UrbanAirship_Example.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "mParticle-UrbanAirship/mParticle-UrbanAirship-Prefix.pch";
 				INFOPLIST_FILE = "mParticle-UrbanAirship/mParticle-UrbanAirship-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanairship.richpush;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -401,13 +469,14 @@
 		};
 		6003F5C1195388D20070C39A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 30059ADB5FBA6BA715215519 /* Pods-mParticle-UrbanAirship_Example.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "mParticle-UrbanAirship/mParticle-UrbanAirship-Prefix.pch";
 				INFOPLIST_FILE = "mParticle-UrbanAirship/mParticle-UrbanAirship-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = com.urbanairship.richpush;
 				PRODUCT_NAME = "$(TARGET_NAME)";
