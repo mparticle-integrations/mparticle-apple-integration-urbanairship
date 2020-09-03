@@ -97,7 +97,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 + (NSSet *)defaultCategories {
-    return [UANotificationCategories createCategoriesFromFile:[[UAirship resources] pathForResource:@"UANotificationCategories" ofType:@"plist"]];
+    return [UANotificationCategories createCategoriesFromFile:[[UAirshipCoreResources bundle] resourcePath]];
 }
 
 #pragma mark - MPKitInstanceProtocol methods
