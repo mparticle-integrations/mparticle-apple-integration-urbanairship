@@ -16,6 +16,6 @@ Pod::Spec.new do |s|
     s.ios.deployment_target = "11.0"
     s.ios.source_files      = 'mParticle-UrbanAirship/*.{h,m,mm}'
     s.ios.dependency 'mParticle-Apple-SDK/mParticle', '~> 8.0-beta'
-    s.ios.dependency 'UrbanAirship-iOS-SDK', '~> 12.0'
+    s.ios.dependency 'Airship', '~> 14.0.0'
 end
 

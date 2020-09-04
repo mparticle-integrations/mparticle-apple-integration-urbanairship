@@ -1,5 +1,9 @@
 #import "MPKitUrbanAirship.h"
+#if __has_include("AirshipLib.h")
 #import "AirshipLib.h"
+#else
+@import Airship;
+#endif
 
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import <UserNotifications/UserNotifications.h>
@@ -97,7 +101,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 + (NSSet *)defaultCategories {
-    return [UANotificationCategories createCategoriesFromFile:[[UAirship resources] pathForResource:@"UANotificationCategories" ofType:@"plist"]];
+    return [UANotificationCategories defaultCategories];
 }
 
 #pragma mark - MPKitInstanceProtocol methods
@@ -336,8 +340,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [[UAirship push] addTag:uaTag];
-            [[UAirship push] updateRegistration];
+            [[UAirship channel] addTag:uaTag];
+            [[UAirship channel] updateRegistration];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -361,8 +365,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [[UAirship push] addTag:uaTag];
-            [[UAirship push] updateRegistration];
+            [[UAirship channel] addTag:uaTag];
+            [[UAirship channel] updateRegistration];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -386,8 +390,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [[UAirship push] removeTag:uaTag];
-            [[UAirship push] updateRegistration];
+            [[UAirship channel] removeTag:uaTag];
+            [[UAirship channel] updateRegistration];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -416,7 +420,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 #pragma mark Assorted
 
 - (MPKitExecStatus *)setOptOut:(BOOL)optOut {
-    [UAirship shared].analytics.enabled = !optOut;
+    [UAirship shared].dataCollectionEnabled = !optOut;
     
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
@@ -511,17 +515,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
     UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name];
-    Class NSNumberClass = [NSNumber class];
-    
-    for (NSString *key in event.info) {
-        id value = event.info[key];
-        
-        if ([value isKindOfClass:NSNumberClass]) {
-            [customEvent setNumberProperty:value forKey:key];
-        } else {
-            [customEvent setStringProperty:[self stringRepresentation:value] forKey:key];
-        }
-    }
+    customEvent.properties = event.info;
     
     [customEvent track];
 }
@@ -604,7 +598,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (void)updateChannelIntegration  {
-    NSString *channelID = [UAirship push].channelID;
+    NSString *channelID = [UAirship channel].identifier;
     
     if (channelID.length) {
         NSDictionary<NSString *, NSString *> *integrationAttributes = @{UAChannelIdIntegrationKey:channelID};
@@ -663,8 +657,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
-            [[UAirship push] addTag:tagMapping.value];
-            [[UAirship push] updateRegistration];
+            [[UAirship channel] addTag:tagMapping.value];
+            [[UAirship channel] updateRegistration];
         }];
     }
 }
@@ -682,8 +676,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
-            [[UAirship push] addTag:tagMapping.value];
-            [[UAirship push] updateRegistration];
+            [[UAirship channel] addTag:tagMapping.value];
+            [[UAirship channel] updateRegistration];
         }];
     }
 }
@@ -718,9 +712,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                 
                 if (attributeString) {
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
-                    [[UAirship push] addTag:tagPlusAttributeValue];
-                    [[UAirship push] addTag:tagMapping.value];
-                    [[UAirship push] updateRegistration];
+                    [[UAirship channel] addTag:tagPlusAttributeValue];
+                    [[UAirship channel] addTag:tagMapping.value];
+                    [[UAirship channel] updateRegistration];
                 }
             }];
         }
@@ -747,9 +741,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                 
                 if (attributeString) {
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
-                    [[UAirship push] addTag:tagPlusAttributeValue];
-                    [[UAirship push] addTag:tagMapping.value];
-                    [[UAirship push] updateRegistration];
+                    [[UAirship channel] addTag:tagPlusAttributeValue];
+                    [[UAirship channel] addTag:tagMapping.value];
+                    [[UAirship channel] updateRegistration];
                 }
             }];
         }
