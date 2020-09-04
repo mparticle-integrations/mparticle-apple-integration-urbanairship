@@ -1,5 +1,9 @@
 #import "MPKitUrbanAirship.h"
+#if __has_include("AirshipLib.h")
 #import "AirshipLib.h"
+#else
+@import Airship;
+#endif
 
 #if TARGET_OS_IOS == 1 && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import <UserNotifications/UserNotifications.h>
@@ -97,7 +101,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 + (NSSet *)defaultCategories {
-    return [UANotificationCategories createCategoriesFromFile:[[UAirshipCoreResources bundle] resourcePath]];
+    return [UANotificationCategories defaultCategories];
 }
 
 #pragma mark - MPKitInstanceProtocol methods
