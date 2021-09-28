@@ -132,7 +132,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         self->_started = YES;
         
         UAConfig *config = [UAConfig defaultConfig];
-        config.automaticSetupEnabled = NO;
+        config.isAutomaticSetupEnabled = NO;
         
         // Enable passive APNS registration
         config.requestAuthorizationToUseNotifications = NO;
@@ -147,8 +147,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
             config.inProduction = YES;
         }
         
-        [UAirship takeOff:config];
-        UAirship.push.userPushNotificationsEnabledByDefault = YES;
+        [UAirship takeOff:config launchOptions:_launchOptions];
+        UAirship.push.userPushNotificationsEnabled = YES;
         [[UAirship push] updateRegistration];
         
         NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
@@ -160,7 +160,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         [notificationCenter addObserver:self
                                selector:@selector(updateChannelIntegration)
-                                   name:UAChannelCreatedEvent
+                                   name:UAChannel.channelCreatedEvent
                                  object:nil];
         
         [self updateChannelIntegration];
@@ -308,7 +308,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (MPKitExecStatus *)logScreen:(MPEvent *)event {
-    [[UAirship shared].analytics trackScreen:event.name];
+    [UAirship.analytics trackScreen:event.name];
     
     // Event class detail tags
     NSPredicate *predicate = [NSPredicate predicateWithFormat:@"mapType == %@", kMPUAMapTypeEventClassDetails];
@@ -420,7 +420,11 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 #pragma mark Assorted
 
 - (MPKitExecStatus *)setOptOut:(BOOL)optOut {
-    [UAirship shared].dataCollectionEnabled = !optOut;
+    if(!optOut) {
+        [UAirship shared].privacyManager.enabledFeatures = UAFeaturesAll;
+    } else {
+        [UAirship shared].privacyManager.enabledFeatures = UAFeaturesNone;
+    }
     
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
                                          returnCode:MPKitReturnCodeSuccess];
@@ -506,9 +510,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
             return false;
     }
     
-    UAAssociatedIdentifiers *identifiers = [[UAirship shared].analytics currentAssociatedDeviceIdentifiers];
+    UAAssociatedIdentifiers *identifiers = [UAirship.analytics currentAssociatedDeviceIdentifiers];
     [identifiers setIdentifier:identityString forKey:key];
-    [[UAirship shared].analytics associateDeviceIdentifiers:identifiers];
+    [UAirship.analytics associateDeviceIdentifiers:identifiers];
     
     return YES;
 }
@@ -771,14 +775,14 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification  API_AVAILABLE(ios(10.0)){
-    [UAAppIntegration userNotificationCenter:center willPresentNotification:notification withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    [UAAppIntegration userNotificationCenterWithCenter:center willPresentNotification:notification withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response  API_AVAILABLE(ios(10.0)){
-    [UAAppIntegration userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:^{}];
+    [UAAppIntegration userNotificationCenterWithCenter:center didReceiveNotificationResponse:response withCompletionHandler:^{}];
     
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
