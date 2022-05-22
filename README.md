@@ -30,7 +30,7 @@ Registering out-of-the-box categories manually can be accomplished by accessing 
 
 ### Documentation
 
-[UrbanAirship integration](https://docs.mparticle.com/integrations/urbanairship/event/)
+[UrbanAirship integration](https://docs.mparticle.com/integrations/airship/event/)
 
 ### License
 
