@@ -1,6 +1,6 @@
 ## UrbanAirship Kit Integration
 
-This repository contains the [UrbanAirship](https://www.urbanairship.com) integration for the [mParticle Apple SDK](https://github.com/mParticle/mparticle-apple-sdk).
+This repository contains the [Airship](https://www.airship.com) integration for the [mParticle Apple SDK](https://github.com/mParticle/mparticle-apple-sdk).
 
 ### Adding the integration
 
@@ -18,7 +18,7 @@ This repository contains the [UrbanAirship](https://www.urbanairship.com) integr
 
 ## Push Registration
 
-Push registration is not handled by the Urban Airship SDK when the passive registration setting is enabled. This prevents out-of-the-box categories from being registered automatically. 
+Push registration is not handled by the Airship SDK when the passive registration setting is enabled. This prevents out-of-the-box categories from being registered automatically. 
 
 Registering out-of-the-box categories manually can be accomplished by accessing the defaultCategories class method on MPKitUrbanAirship and setting them on the UNNotificationCenter:
 
@@ -30,7 +30,7 @@ Registering out-of-the-box categories manually can be accomplished by accessing 
 
 ### Documentation
 
-[UrbanAirship integration](https://docs.mparticle.com/integrations/urbanairship/event/)
+[Airship integration](https://docs.mparticle.com/integrations/airship/event/)
 
 ### License
 

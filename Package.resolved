@@ -1,0 +1,25 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Airship",
+        "repositoryURL": "https://github.com/urbanairship/ios-library",
+        "state": {
+          "branch": null,
+          "revision": "cf31f8c232ede66546e2a68f53fc97e684daeb8a",
+          "version": "16.7.0"
+        }
+      },
+      {
+        "package": "mParticle-Apple-SDK",
+        "repositoryURL": "https://github.com/mParticle/mparticle-apple-sdk",
+        "state": {
+          "branch": null,
+          "revision": "af03e78435e3cbc2cfdcd09256a613d85adb205b",
+          "version": "8.8.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
