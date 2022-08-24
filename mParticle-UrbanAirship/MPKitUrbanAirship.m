@@ -394,7 +394,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [[UAirship channel] removeTag:uaTag];
+            [[UAirship channel] editTags:^(UATagEditor * _Nonnull editor) {
+                [editor removeTag:key];
+                [editor apply];
+            }];
             [[UAirship channel] updateRegistration];
             
             returnCode = MPKitReturnCodeSuccess;
