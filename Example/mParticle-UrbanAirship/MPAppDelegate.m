@@ -18,7 +18,6 @@
 
 #import "MPAppDelegate.h"
 #import "mParticle.h"
-#import "MPKitUrbanAirship.h"
 
 @implementation MPAppDelegate
 

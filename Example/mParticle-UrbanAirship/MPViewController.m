@@ -17,6 +17,7 @@
 //
 
 #import "MPViewController.h"
+@import AirshipKit;
 
 @interface MPViewController ()
 
@@ -28,6 +29,16 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+}
+
+- (void)removeTag:(nonnull NSString *)key {
+    if (key && (NSNull *)key != [NSNull null] && ![key isEqualToString:@""]) {
+        [[UAirship channel] editTags:^(UATagEditor * _Nonnull editor) {
+            [editor removeTag:key];
+            [editor apply];
+        }];
+        [[UAirship channel] updateRegistration];
+    }
 }
 
 - (void)didReceiveMemoryWarning
