@@ -28,6 +28,36 @@ Registering out-of-the-box categories manually can be accomplished by accessing 
     }
 ```
 
+## Tag-Based Segmentation
+
+All mParticle user attributes are forwarded to Airship as [tags](https://docs.airship.com/platform/ios/segmentation/) which can be used to identify and segment your audience.
+
+Most clients prefer for all tags to remain constant if set. But, a tag can be removed manually by invoking removeTag directly on the Airship SDK as shown bellow.
+
+#### Swift
+```swift
+    private func removeTag(key: String) {
+        if (!key.isEmpty) {
+            Airship.channel.editTags { editor in
+                editor.remove(key)
+            }
+            Airship.channel.updateRegistration()
+        }
+    }
+```
+#### Objective-C
+```objective-c
+    - (void)removeTag:(nonnull NSString *)key {
+        if (key && (NSNull *)key != [NSNull null] && ![key isEqualToString:@""]) {
+            [[UAirship channel] editTags:^(UATagEditor * _Nonnull editor) {
+                [editor removeTag:key];
+                [editor apply];
+            }];
+            [[UAirship channel] updateRegistration];
+        }
+    }
+```
+
 ### Documentation
 
 [Airship integration](https://docs.mparticle.com/integrations/airship/event/)
