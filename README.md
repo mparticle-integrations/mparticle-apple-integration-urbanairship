@@ -7,7 +7,7 @@ This repository contains the [Airship](https://www.airship.com) integration for 
 1. Add the kit dependency to your app's Podfile:
 
     ```
-    pod 'mParticle-UrbanAirship', '~> 7.0'
+    pod 'mParticle-UrbanAirship', '~> 8'
     ```
 
 2. Follow the mParticle iOS SDK [quick-start](https://github.com/mParticle/mparticle-apple-sdk), then rebuild and launch your app, and verify that you see `"Included kits: { UrbanAirship }"` in your Xcode console 
