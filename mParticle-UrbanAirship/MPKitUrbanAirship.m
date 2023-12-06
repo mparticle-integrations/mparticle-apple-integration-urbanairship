@@ -102,6 +102,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     MPKitRegister *kitRegister = [[MPKitRegister alloc] initWithName:@"Urban Airship"
                                                            className:@"MPKitUrbanAirship"];
     [MParticle registerExtension:kitRegister];
+    
+    // Test MPIHasher
+    NSString *hashedString = [MPIHasher hashString:@"test string"];
+    NSLog(@"BEN - hashedString: %@", hashedString);
 }
 
 + (NSSet *)defaultCategories {
