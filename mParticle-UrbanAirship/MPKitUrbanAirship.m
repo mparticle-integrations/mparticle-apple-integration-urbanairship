@@ -25,6 +25,7 @@ NSString * const UAIdentityCustomer = @"customer_id";
 
 NSString * const UAConfigAppKey = @"applicationKey";
 NSString * const UAConfigAppSecret = @"applicationSecret";
+NSString * const UAConfigCustomDomainProxyUrl = @"customDomainProxyUrl";
 NSString * const UAConfigEnableTags = @"enableTags";
 NSString * const UAConfigIncludeUserAttributes = @"includeUserAttributes";
 NSString * const UAConfigNamedUserId = @"namedUserIdField";
@@ -140,6 +141,12 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         // Enable passive APNS registration
         config.requestAuthorizationToUseNotifications = NO;
+
+        // Enable custom domain proxy if provided
+        if( self.configuration[UAConfigCustomDomainProxyUrl] ){
+            config.initialConfigURL = self.configuration[UAConfigCustomDomainProxyUrl];
+            config.URLAllowList = @[self.configuration[UAConfigCustomDomainProxyUrl]];
+        }
         
         if ([MParticle sharedInstance].environment == MPEnvironmentDevelopment) {
             config.developmentAppKey = self.configuration[UAConfigAppKey];
