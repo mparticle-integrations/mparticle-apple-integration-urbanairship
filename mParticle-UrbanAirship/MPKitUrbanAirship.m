@@ -345,7 +345,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         if (uaTag) {
             [[UAirship channel] addTag:uaTag];
-            [[UAirship channel] updateRegistration];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -370,7 +369,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         if (uaTag) {
             [[UAirship channel] addTag:uaTag];
-            [[UAirship channel] updateRegistration];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -398,7 +396,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                 [editor removeTag:key];
                 [editor apply];
             }];
-            [[UAirship channel] updateRegistration];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -468,7 +465,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         return NO;
     }
     
-    [UAirship namedUser].identifier = identityString;
+    [UAirship.contact identify:identityString];
     return YES;
 }
 
@@ -669,7 +666,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
             [[UAirship channel] addTag:tagMapping.value];
-            [[UAirship channel] updateRegistration];
         }];
     }
 }
@@ -688,7 +684,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
             [[UAirship channel] addTag:tagMapping.value];
-            [[UAirship channel] updateRegistration];
         }];
     }
 }
@@ -725,7 +720,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
                     [[UAirship channel] addTag:tagPlusAttributeValue];
                     [[UAirship channel] addTag:tagMapping.value];
-                    [[UAirship channel] updateRegistration];
                 }
             }];
         }
@@ -754,7 +748,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
                     [[UAirship channel] addTag:tagPlusAttributeValue];
                     [[UAirship channel] addTag:tagMapping.value];
-                    [[UAirship channel] updateRegistration];
                 }
             }];
         }
