@@ -145,7 +145,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         // Enable custom domain proxy if provided
         if (self.configuration[UAConfigCustomDomainProxyUrl]) {
             config.initialConfigURL = self.configuration[UAConfigCustomDomainProxyUrl];
-            config.URLAllowList = @[self.configuration[UAConfigCustomDomainProxyUrl]];
+            config.URLAllowList = [config.URLAllowList arrayByAddingObject:self.configuration[UAConfigCustomDomainProxyUrl]];
         }
         
         if ([MParticle sharedInstance].environment == MPEnvironmentDevelopment) {
