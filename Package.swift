@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "mParticle-UrbanAirship",
-    platforms: [ .iOS(.v11) ],
+    platforms: [ .iOS(.v14) ],
     products: [
         .library(
             name: "mParticle-UrbanAirship",
@@ -15,7 +15,7 @@ let package = Package(
                .upToNextMajor(from: "8.0.0")),
       .package(name: "Airship",
                url: "https://github.com/urbanairship/ios-library",
-               .upToNextMajor(from: "16.7.0")),
+               .upToNextMajor(from: "18.0.0")),
     ],
     targets: [
         .target(
