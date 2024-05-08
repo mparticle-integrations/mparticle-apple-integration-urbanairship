@@ -12,7 +12,7 @@ let package = Package(
     dependencies: [
       .package(name: "mParticle-Apple-SDK",
                url: "https://github.com/mParticle/mparticle-apple-sdk",
-               .upToNextMajor(from: "8.0.0")),
+               .upToNextMajor(from: "8.22.0")),
       .package(name: "Airship",
                url: "https://github.com/urbanairship/ios-library",
                .upToNextMajor(from: "18.2.0")),
