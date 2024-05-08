@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "mParticle-UrbanAirship",
-    platforms: [ .iOS(.v11) ],
+    platforms: [ .iOS(.v14) ],
     products: [
         .library(
             name: "mParticle-UrbanAirship",
