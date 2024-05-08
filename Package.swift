@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "mParticle-UrbanAirship",
-    platforms: [ .iOS(.v11) ],
+    platforms: [ .iOS(.v14) ],
     products: [
         .library(
             name: "mParticle-UrbanAirship",
@@ -12,10 +12,10 @@ let package = Package(
     dependencies: [
       .package(name: "mParticle-Apple-SDK",
                url: "https://github.com/mParticle/mparticle-apple-sdk",
-               .upToNextMajor(from: "8.0.0")),
+               .upToNextMajor(from: "8.22.0")),
       .package(name: "Airship",
                url: "https://github.com/urbanairship/ios-library",
-               .upToNextMajor(from: "16.7.0")),
+               .upToNextMajor(from: "18.2.0")),
     ],
     targets: [
         .target(
@@ -25,6 +25,7 @@ let package = Package(
                 .product(name: "AirshipCore", package: "Airship"),
             ],
             path: "mParticle-UrbanAirship",
+            resources: [.process("PrivacyInfo.xcprivacy")],
             publicHeadersPath: "."),
     ]
 )
