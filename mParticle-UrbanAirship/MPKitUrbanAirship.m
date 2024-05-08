@@ -160,7 +160,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         [UAirship takeOff:config launchOptions:_launchOptions];
         UAirship.push.userPushNotificationsEnabled = YES;
-        [[UAirship push] updateRegistration];
         
         NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
         
@@ -171,7 +170,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         [notificationCenter addObserver:self
                                selector:@selector(updateChannelIntegration)
-                                   name:UAChannel.channelCreatedEvent
+                                   name:UAirshipNotificationChannelCreated.name
                                  object:nil];
         
         [self updateChannelIntegration];
@@ -183,7 +182,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (id const)providerKitInstance {
-    return [self started] ? [UAirship shared] : nil;
+    // Urban Airship no longer provides a shared instance. Instead their API's now all work as class methods on UAirship
+    return nil;
 }
 
 - (void)setConfiguration:(NSDictionary *)configuration {
@@ -351,7 +351,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [[UAirship channel] addTag:uaTag];
+            [UAirship.channel editTags:^(UATagEditor *editor) {
+                [editor addTag:uaTag];
+            }];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -375,7 +377,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [[UAirship channel] addTag:uaTag];
+            [UAirship.channel editTags:^(UATagEditor *editor) {
+                [editor addTag:uaTag];
+            }];
             
             returnCode = MPKitReturnCodeSuccess;
         } else {
@@ -432,9 +436,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
 - (MPKitExecStatus *)setOptOut:(BOOL)optOut {
     if(!optOut) {
-        [UAirship shared].privacyManager.enabledFeatures = UAFeaturesAll;
+        UAirship.privacyManager.enabledFeatures = UAFeaturesAll;
     } else {
-        [UAirship shared].privacyManager.enabledFeatures = UAFeaturesNone;
+        UAirship.privacyManager.enabledFeatures = UAFeaturesNone;
     }
     
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
@@ -672,7 +676,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
-            [[UAirship channel] addTag:tagMapping.value];
+            [UAirship.channel editTags:^(UATagEditor *editor) {
+                [editor addTag:tagMapping.value];
+            }];
         }];
     }
 }
@@ -690,7 +696,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
-            [[UAirship channel] addTag:tagMapping.value];
+            [UAirship.channel editTags:^(UATagEditor *editor) {
+                [editor addTag:tagMapping.value];
+            }];
         }];
     }
 }
@@ -725,8 +733,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                 
                 if (attributeString) {
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
-                    [[UAirship channel] addTag:tagPlusAttributeValue];
-                    [[UAirship channel] addTag:tagMapping.value];
+                    [UAirship.channel editTags:^(UATagEditor *editor) {
+                        [editor addTag:tagPlusAttributeValue];
+                        [editor addTag:tagMapping.value];
+                    }];
                 }
             }];
         }
@@ -753,8 +763,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                 
                 if (attributeString) {
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
-                    [[UAirship channel] addTag:tagPlusAttributeValue];
-                    [[UAirship channel] addTag:tagMapping.value];
+                    [UAirship.channel editTags:^(UATagEditor *editor) {
+                        [editor addTag:tagPlusAttributeValue];
+                        [editor addTag:tagMapping.value];
+                    }];
                 }
             }];
         }
