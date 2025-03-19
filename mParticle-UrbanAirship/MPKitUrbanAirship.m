@@ -136,7 +136,19 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     dispatch_once(&kitPredicate, ^{
         self->_started = YES;
         
-        UAConfig *config = [UAConfig defaultConfig];
+        NSError *error = nil;
+        UAConfig *config = [UAConfig config];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSString *pListPath = @"AirshipConfig.plist";
+        if ([fileManager fileExistsAtPath:pListPath]) {
+            config = [UAConfig fromPlistWithContentsOfFile:pListPath error:&error];
+            if (error) {
+                NSLog(@"Airship config failed to initialize based off AirshipConfig.plist: %@", error);
+                NSLog(@"mParticle will attempt to manually construct UA Config based off your Connection Settings");
+                config = [UAConfig config];
+            }
+        }
+        
         config.isAutomaticSetupEnabled = NO;
         
         // Enable passive APNS registration
@@ -151,14 +163,18 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         if ([MParticle sharedInstance].environment == MPEnvironmentDevelopment) {
             config.developmentAppKey = self.configuration[UAConfigAppKey];
             config.developmentAppSecret = self.configuration[UAConfigAppSecret];
-            config.inProduction = NO;
+            config.inProduction = @NO;
         } else {
             config.productionAppKey = self.configuration[UAConfigAppKey];
             config.productionAppSecret = self.configuration[UAConfigAppSecret];
-            config.inProduction = YES;
+            config.inProduction = @YES;
         }
         
-        [UAirship takeOff:config launchOptions:_launchOptions];
+        [UAirship takeOff:config launchOptions:_launchOptions error:&error];
+        if (error) {
+            NSLog(@"Airship.takeOff failed: %@", error);
+        }
+        
         UAirship.push.userPushNotificationsEnabled = YES;
         
         NSDictionary *userInfo = @{mParticleKitInstanceKey:[[self class] kitCode]};
@@ -170,7 +186,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         [notificationCenter addObserver:self
                                selector:@selector(updateChannelIntegration)
-                                   name:UAirshipNotificationChannelCreated.name
+                                   name:@"com.urbanairship.channel.channel_created" // https://github.com/mparticle-integrations/mparticle-apple-integration-urbanairship/pull/31#discussion_r2003658925
                                  object:nil];
         
         [self updateChannelIntegration];
@@ -278,8 +294,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (MPKitExecStatus *)logLTVIncrease:(double)increaseAmount event:(MPEvent *)event {
-    UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name
-                                                        value:[NSNumber numberWithDouble:increaseAmount]];
+    UACustomEvent *customEvent = [[UACustomEvent alloc] initWithName:event.name value:increaseAmount];
     
     [customEvent track];
     
@@ -351,10 +366,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [UAirship.channel editTags:^(UATagEditor *editor) {
-                [editor addTag:uaTag];
-            }];
-            
+            UATagEditor *editor = [UAirship.channel editTags];
+            [editor addTag:uaTag];
+            [editor apply];
             returnCode = MPKitReturnCodeSuccess;
         } else {
             returnCode = MPKitReturnCodeRequirementsNotMet;
@@ -377,10 +391,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [UAirship.channel editTags:^(UATagEditor *editor) {
-                [editor addTag:uaTag];
-            }];
-            
+            UATagEditor *editor = [UAirship.channel editTags];
+            [editor addTag:uaTag];
+            [editor apply];
             returnCode = MPKitReturnCodeSuccess;
         } else {
             returnCode = MPKitReturnCodeRequirementsNotMet;
@@ -403,11 +416,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         }
         
         if (uaTag) {
-            [[UAirship channel] editTags:^(UATagEditor * _Nonnull editor) {
-                [editor removeTag:key];
-                [editor apply];
-            }];
-            
+            UATagEditor *editor = [UAirship.channel editTags];
+            [editor removeTag:uaTag];
+            [editor apply];
             returnCode = MPKitReturnCodeSuccess;
         } else {
             returnCode = MPKitReturnCodeRequirementsNotMet;
@@ -436,9 +447,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 
 - (MPKitExecStatus *)setOptOut:(BOOL)optOut {
     if(!optOut) {
-        UAirship.privacyManager.enabledFeatures = UAFeaturesAll;
+        UAirship.privacyManager.enabledFeatures = UAFeature.all;
     } else {
-        UAirship.privacyManager.enabledFeatures = UAFeaturesNone;
+        UAirship.privacyManager.enabledFeatures = UAFeature.none;
     }
     
     return [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode]
@@ -526,15 +537,19 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     }
     
     UAAssociatedIdentifiers *identifiers = [UAirship.analytics currentAssociatedDeviceIdentifiers];
-    [identifiers setIdentifier:identityString forKey:key];
-    [UAirship.analytics associateDeviceIdentifiers:identifiers];
+    [identifiers setWithIdentifier:identityString key:key];
+    [UAirship.analytics associateDeviceIdentifier:identifiers];
     
     return YES;
 }
 
 - (void)logUrbanAirshipEvent:(MPEvent *)event {
-    UACustomEvent *customEvent = [UACustomEvent eventWithName:event.name];
-    customEvent.properties = event.info;
+    UACustomEvent *customEvent = [[UACustomEvent alloc] initWithName:event.name];
+    NSError *error = nil;
+    [customEvent setProperties:event.info error:&error];
+    if (error) {
+        NSLog(@"Failed to set properties: %@\non Event: %@\n failed: %@", event.info, event.name, error);
+    }
     
     [customEvent track];
 }
@@ -548,15 +563,13 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionPurchase:
             
             for (id product in commerceEvent.products) {
-                UARetailEventTemplate *template = [UARetailEventTemplate purchasedTemplate];
-                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+                UACustomEventRetailTemplate *template = [UACustomEventRetailTemplate purchased];
+                UACustomEvent *customEvent = [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
                 
                 NSString *transactionId = commerceEvent.transactionAttributes.transactionId;
-                if (transactionId) {
-                    template.transactionID = transactionId;
-                }
+                customEvent.transactionID = transactionId;
                 
-                [[template createEvent] track];
+                [customEvent track];
             }
             
             return YES;
@@ -564,9 +577,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionAddToCart:
             
             for (id product in commerceEvent.products) {
-                UARetailEventTemplate *template = [UARetailEventTemplate addedToCartTemplate];
-                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
-                [[template createEvent] track];
+                UACustomEventRetailTemplate *template = [UACustomEventRetailTemplate addedToCart];
+                UACustomEvent *customEvent = [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+
+                [customEvent track];
             }
             
             return YES;
@@ -574,9 +588,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionClick:
             
             for (id product in commerceEvent.products) {
-                UARetailEventTemplate *template = [UARetailEventTemplate browsedTemplate];
-                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
-                [[template createEvent] track];
+                UACustomEventRetailTemplate *template = [UACustomEventRetailTemplate browsed];
+                UACustomEvent *customEvent = [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+
+                [customEvent track];
             }
             
             return YES;
@@ -584,9 +599,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         case MPCommerceEventActionAddToWishList:
             
             for (id product in commerceEvent.products) {
-                UARetailEventTemplate *template = [UARetailEventTemplate starredProductTemplate];
-                [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
-                [[template createEvent] track];
+                UACustomEventRetailTemplate *template = [UACustomEventRetailTemplate starred];
+                UACustomEvent *customEvent = [self populateRetailEventTemplate:template commerceEvent:commerceEvent product:product];
+                [customEvent track];
             }
             
             return YES;
@@ -596,24 +611,26 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     }
 }
 
-- (void)populateRetailEventTemplate:(UARetailEventTemplate *)template
+- (UACustomEvent *)populateRetailEventTemplate:(UACustomEventRetailTemplate *)template
                       commerceEvent:(MPCommerceEvent *)commerceEvent
                             product:(MPProduct *)product {
+    UACustomEventRetailProperties *properties = [[UACustomEventRetailProperties alloc] initWithId:product.sku category:product.category type:nil eventDescription:product.name isLTV:nil brand:product.brand isNewItem:nil currency:nil];
     
-    template.category = product.category;
-    template.identifier = product.sku;
-    template.eventDescription = product.name;
-    template.brand = product.brand;
-    
+    UACustomEvent *customEvent = [[UACustomEvent alloc] initWithRetailTemplate:template properties:properties];
+
+    NSDecimal eventValue;
     if (product.price == nil) {
-        template.eventValue = [NSDecimalNumber zero];
+        eventValue = [NSDecimalNumber zero].decimalValue;
     } else if (product.quantity == nil) {
-        template.eventValue = [NSDecimalNumber decimalNumberWithDecimal:[product.price decimalValue]];
+        eventValue = [NSDecimalNumber decimalNumberWithDecimal:[product.price decimalValue]].decimalValue;
     } else {
         NSDecimalNumber *decimalPrice = [NSDecimalNumber decimalNumberWithDecimal:[product.price decimalValue]];
         NSDecimalNumber *decimalQuantity = [NSDecimalNumber decimalNumberWithDecimal:[product.quantity decimalValue]];
-        template.eventValue = [decimalPrice decimalNumberByMultiplyingBy:decimalQuantity];
+        eventValue = [decimalPrice decimalNumberByMultiplyingBy:decimalQuantity].decimalValue;
     }
+    customEvent.eventValue = eventValue;
+    
+    return customEvent;
 }
 
 - (void)updateChannelIntegration  {
@@ -676,9 +693,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
-            [UAirship.channel editTags:^(UATagEditor *editor) {
-                [editor addTag:tagMapping.value];
-            }];
+            UATagEditor *editor = [UAirship.channel editTags];
+            [editor addTag:tagMapping.value];
+            [editor apply];
         }];
     }
 }
@@ -696,9 +713,9 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     
     if (matchTagMappings.count > 0) {
         [matchTagMappings enumerateObjectsUsingBlock:^(MPUATagMapping * _Nonnull tagMapping, NSUInteger idx, BOOL * _Nonnull stop) {
-            [UAirship.channel editTags:^(UATagEditor *editor) {
-                [editor addTag:tagMapping.value];
-            }];
+            UATagEditor *editor = [UAirship.channel editTags];
+            [editor addTag:tagMapping.value];
+            [editor apply];
         }];
     }
 }
@@ -733,10 +750,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                 
                 if (attributeString) {
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
-                    [UAirship.channel editTags:^(UATagEditor *editor) {
-                        [editor addTag:tagPlusAttributeValue];
-                        [editor addTag:tagMapping.value];
-                    }];
+                    UATagEditor *editor = [UAirship.channel editTags];
+                    [editor addTag:tagPlusAttributeValue];
+                    [editor addTag:tagMapping.value];
+                    [editor apply];
                 }
             }];
         }
@@ -763,10 +780,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
                 
                 if (attributeString) {
                     NSString *tagPlusAttributeValue = [NSString stringWithFormat:@"%@-%@", tagMapping.value, attributeString];
-                    [UAirship.channel editTags:^(UATagEditor *editor) {
-                        [editor addTag:tagPlusAttributeValue];
-                        [editor addTag:tagMapping.value];
-                    }];
+                    UATagEditor *editor = [UAirship.channel editTags];
+                    [editor addTag:tagPlusAttributeValue];
+                    [editor addTag:tagMapping.value];
+                    [editor apply];
                 }
             }];
         }
@@ -794,14 +811,14 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 - (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center willPresentNotification:(nonnull UNNotification *)notification  API_AVAILABLE(ios(10.0)){
-    [UAAppIntegration userNotificationCenterWithCenter:center willPresentNotification:notification withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
+    [UAAppIntegration userNotificationCenter:center willPresentNotification:notification withCompletionHandler:^(UNNotificationPresentationOptions options) {}];
     
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
 }
 
 - (nonnull MPKitExecStatus *)userNotificationCenter:(nonnull UNUserNotificationCenter *)center didReceiveNotificationResponse:(nonnull UNNotificationResponse *)response  API_AVAILABLE(ios(10.0)){
-    [UAAppIntegration userNotificationCenterWithCenter:center didReceiveNotificationResponse:response withCompletionHandler:^{}];
+    [UAAppIntegration userNotificationCenter:center didReceiveNotificationResponse:response withCompletionHandler:^{}];
     
     MPKitExecStatus *execStatus = [[MPKitExecStatus alloc] initWithSDKCode:[MPKitUrbanAirship kitCode] returnCode:MPKitReturnCodeSuccess];
     return execStatus;
