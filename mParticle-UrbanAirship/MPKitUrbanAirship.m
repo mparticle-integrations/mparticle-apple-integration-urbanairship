@@ -136,7 +136,19 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     dispatch_once(&kitPredicate, ^{
         self->_started = YES;
         
+        NSError *error = nil;
         UAConfig *config = [UAConfig config];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSString *pListPath = @"AirshipConfig.plist";
+        if ([fileManager fileExistsAtPath:pListPath]) {
+            config = [UAConfig fromPlistWithContentsOfFile:pListPath error:&error];
+            if (error) {
+                NSLog(@"Airship config failed to initialize based off AirshipConfig.plist: %@", error);
+                NSLog(@"mParticle will attempt to manually construct UA Config based off your Connection Settings");
+                config = [UAConfig config];
+            }
+        }
+        
         config.isAutomaticSetupEnabled = NO;
         
         // Enable passive APNS registration
@@ -158,7 +170,6 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
             config.inProduction = @YES;
         }
         
-        NSError *error = nil;
         [UAirship takeOff:config launchOptions:_launchOptions error:&error];
         if (error) {
             NSLog(@"Airship.takeOff failed: %@", error);
@@ -175,7 +186,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
         
         [notificationCenter addObserver:self
                                selector:@selector(updateChannelIntegration)
-                                   name:UAAirshipNotificationsAirshipReady.name
+                                   name:@"com.urbanairship.channel.channel_created" // https://github.com/mparticle-integrations/mparticle-apple-integration-urbanairship/pull/31#discussion_r2003658925
                                  object:nil];
         
         [self updateChannelIntegration];
