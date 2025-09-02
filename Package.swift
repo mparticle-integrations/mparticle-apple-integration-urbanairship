@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "mParticle-UrbanAirship",
-    platforms: [ .iOS(.v15) ],
+    platforms: [ .iOS(.v15), .macOS(.v10_15) ],
     products: [
         .library(
             name: "mParticle-UrbanAirship",
@@ -22,7 +22,7 @@ let package = Package(
             name: "mParticle-UrbanAirship",
             dependencies: [
                 .byName(name: "mParticle-Apple-SDK"),
-                .product(name: "AirshipCore", package: "Airship"),
+                .product(name: "AirshipObjectiveC", package: "Airship"),
             ],
             path: "mParticle-UrbanAirship",
             resources: [.process("PrivacyInfo.xcprivacy")],

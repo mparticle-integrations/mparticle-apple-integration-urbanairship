@@ -1,11 +1,11 @@
 #import "MPKitUrbanAirship.h"
 #if SWIFT_PACKAGE
-    @import AirshipCore;
+    @import AirshipObjectiveC;
 #else
     #if __has_include("AirshipLib.h")
         #import "AirshipLib.h"
     #else
-        @import AirshipKit;
+        @import AirshipObjectiveC;
     #endif
 #endif
 
@@ -106,7 +106,8 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
 }
 
 + (NSSet *)defaultCategories {
-    return [UANotificationCategories defaultCategories];
+    // Return empty set as default categories are now handled by Airship SDK internally
+    return [NSSet set];
 }
 
 #pragma mark - MPKitInstanceProtocol methods
@@ -478,7 +479,7 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     } else if ([namedUserConfig isEqualToString:UAConfigNamedUserIdOther]) {
         mappedType = MPUserIdentityOther;
     } else if ([namedUserConfig isEqualToString:UAConfigNamedUserIdCustomerdId]) {
-        mappedType = MPUserIdentityCustomerId;;
+        mappedType = MPUserIdentityCustomerId;
     } else {
         return NO;
     }
