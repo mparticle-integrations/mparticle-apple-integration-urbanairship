@@ -1,6 +1,7 @@
 #import "MPKitUrbanAirship.h"
 #if SWIFT_PACKAGE
     @import AirshipCore;
+    @import AirshipObjectiveC;
 #else
     #if __has_include("AirshipLib.h")
         #import "AirshipLib.h"
