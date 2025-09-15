@@ -1,9 +1,9 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.10
 import PackageDescription
 
 let package = Package(
     name: "mParticle-UrbanAirship",
-    platforms: [ .iOS(.v14) ],
+    platforms: [ .iOS(.v15) ],
     products: [
         .library(
             name: "mParticle-UrbanAirship",
@@ -22,7 +22,7 @@ let package = Package(
             name: "mParticle-UrbanAirship",
             dependencies: [
                 .byName(name: "mParticle-Apple-SDK"),
-                .product(name: "AirshipCore", package: "Airship"),
+                .product(name: "AirshipObjectiveC", package: "Airship"),
             ],
             path: "mParticle-UrbanAirship",
             resources: [.process("PrivacyInfo.xcprivacy")],
