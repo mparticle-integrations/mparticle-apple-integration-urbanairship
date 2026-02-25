@@ -15,7 +15,7 @@ let package = Package(
                .upToNextMajor(from: "8.41.1")),
       .package(name: "Airship",
                url: "https://github.com/urbanairship/ios-library",
-               .upToNextMajor(from: "20.0.3")),
+               .upToNextMajor(from: "20.4.0")),
     ],
     targets: [
         .target(
