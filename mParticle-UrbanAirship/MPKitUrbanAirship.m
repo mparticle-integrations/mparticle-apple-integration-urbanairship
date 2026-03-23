@@ -212,10 +212,10 @@ NSString * const kMPUAMapTypeEventAttributeClassDetails = @"EventAttributeClassD
     NSData *tagMappingData;
     
     if (configuration && configuration[kMPUAEventTagKey] != [NSNull null]) {
-        tagMappingStr = [configuration[kMPUAEventAttributeTagKey] stringByRemovingPercentEncoding];
+        tagMappingStr = [configuration[kMPUAEventTagKey] stringByRemovingPercentEncoding];
         tagMappingData = [tagMappingStr dataUsingEncoding:NSUTF8StringEncoding];
     }
-    
+
     NSError *error = nil;
     NSArray<NSDictionary<NSString *, NSString *> *> *tagMappingConfig = nil;
     

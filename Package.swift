@@ -27,5 +27,9 @@ let package = Package(
             path: "mParticle-UrbanAirship",
             resources: [.process("PrivacyInfo.xcprivacy")],
             publicHeadersPath: "."),
+        .testTarget(
+            name: "mParticle-UrbanAirshipTests",
+            dependencies: ["mParticle-UrbanAirship"],
+            path: "Tests"),
     ]
 )
